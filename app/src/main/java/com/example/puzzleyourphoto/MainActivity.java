@@ -1,18 +1,30 @@
 package com.example.puzzleyourphoto;
 
+import android.content.Intent;
+import android.net.Uri;
 import android.os.Bundle;
 
 
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.widget.Toolbar;
 
+import android.os.Environment;
+import android.provider.MediaStore;
+import android.util.Log;
 import android.view.View;
 import android.view.Menu;
 import android.view.MenuItem;
+import android.widget.ImageView;
 
 import com.getbase.floatingactionbutton.FloatingActionButton;
 
+import java.io.File;
+import java.text.SimpleDateFormat;
+import java.util.Date;
+
 public class MainActivity extends AppCompatActivity {
+    ImageView imageView;
+    Uri file;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -46,10 +58,33 @@ public class MainActivity extends AppCompatActivity {
     }
 
     public void takePhoto(){
-
+        Intent intent = new Intent(MediaStore.ACTION_IMAGE_CAPTURE);
+        file = Uri.fromFile(getOutputMediaFile());
+        intent.putExtra(MediaStore.EXTRA_OUTPUT, file);
+        startActivityForResult(intent, 1);
     }
 
-    public void uploadPhoto(){}
+    public void uploadPhoto(){
+        Intent intent = new   Intent(Intent.ACTION_PICK,android.provider.MediaStore.Images.Media.EXTERNAL_CONTENT_URI);
+        startActivityForResult(intent, 2);
+    }
+
+    @Override
+    protected void onActivityResult(int requestCode, int resultCode, Intent data) {
+        super.onActivityResult(requestCode, resultCode, data);
+        if (requestCode == 1) {
+            if (resultCode == RESULT_OK) {
+                imageView.setImageURI(file);
+            }
+        }
+    }
+
+    public File getOutputMediaFile(){
+        File mediaStorageDir = new File(Environment.getExternalStoragePublicDirectory(
+                Environment.DIRECTORY_PICTURES).getAbsolutePath());
+        return new File(Environment.getExternalStoragePublicDirectory(
+                Environment.DIRECTORY_PICTURES).getAbsolutePath()+"/picture.jpg");
+    }
 
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
