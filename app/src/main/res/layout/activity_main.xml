@@ -1,0 +1,60 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.coordinatorlayout.widget.CoordinatorLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    tools:context=".MainActivity">
+
+    <com.google.android.material.appbar.AppBarLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:theme="@style/AppTheme.AppBarOverlay">
+
+        <androidx.appcompat.widget.Toolbar
+            android:id="@+id/toolbar"
+            android:layout_width="match_parent"
+            android:layout_height="?attr/actionBarSize"
+            android:background="?attr/colorPrimary"
+            app:popupTheme="@style/AppTheme.PopupOverlay" />
+
+    </com.google.android.material.appbar.AppBarLayout>
+
+    <include layout="@layout/content_main" />
+
+    <com.getbase.floatingactionbutton.FloatingActionsMenu
+        android:id="@+id/plusbtn"
+        android:layout_width="273dp"
+        android:layout_height="269dp"
+        android:layout_gravity="bottom|end"
+        app:fabSize="normal"
+        app:fab_addButtonColorNormal="@color/colorPrimary"
+        app:fab_addButtonColorPressed="@color/colorPrimaryDark"
+        app:fab_addButtonPlusIconColor="@color/colorAccent"
+        app:fab_labelStyle="@style/customFab"
+
+        app:srcCompat="@android:drawable/ic_input_add">
+
+        <com.getbase.floatingactionbutton.FloatingActionButton
+            android:id="@+id/takephotobtn"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            app:fab_colorNormal="@color/colorPrimary"
+            app:fab_colorPressed="@color/colorPrimaryDark"
+            app:fab_icon="@drawable/ic_photo_mine1"
+            app:fab_size="mini"
+            app:fab_title="Take a photo!" />
+
+        <com.getbase.floatingactionbutton.FloatingActionButton
+            android:id="@+id/uploadphotobtn"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            app:fab_colorNormal="@color/colorPrimary"
+            app:fab_colorPressed="@color/colorPrimaryDark"
+            app:fab_icon="@drawable/ic_photo_mine2"
+            app:fab_size="mini"
+            app:fab_title="Upload a photo from gallery" />
+
+    </com.getbase.floatingactionbutton.FloatingActionsMenu>
+
+</androidx.coordinatorlayout.widget.CoordinatorLayout>
