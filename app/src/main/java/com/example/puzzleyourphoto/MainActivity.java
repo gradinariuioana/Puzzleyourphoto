@@ -1,6 +1,8 @@
 package com.example.puzzleyourphoto;
 
+import android.content.Context;
 import android.content.Intent;
+import android.database.Cursor;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.graphics.Matrix;
@@ -48,7 +50,7 @@ public class MainActivity extends AppCompatActivity {
         fab2.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                uploadPhoto();
+                dispatchUploadPictureIntent();
             }
         });
     }
@@ -79,13 +81,15 @@ public class MainActivity extends AppCompatActivity {
     }
 
     static final int REQUEST_TAKE_PHOTO = 1;
+    static final int REQUEST_UPLOAD_PHOTO = 2;
+    File photoFile;
 
     private void dispatchTakePictureIntent() {
         Intent takePictureIntent = new Intent(MediaStore.ACTION_IMAGE_CAPTURE);
         // Ensure that there's a camera activity to handle the intent
         if (takePictureIntent.resolveActivity(getPackageManager()) != null) {
             // Create the File where the photo should go
-            File photoFile = null;
+            photoFile = null;
             try {
                 photoFile = createImageFile();
             } catch (IOException ex) {
@@ -99,27 +103,45 @@ public class MainActivity extends AppCompatActivity {
                         photoFile);
                 takePictureIntent.putExtra(MediaStore.EXTRA_OUTPUT, photoURI);
                 startActivityForResult(takePictureIntent, REQUEST_TAKE_PHOTO);
-                //imageToRoll();
             }
         }
+    }
+
+    public void dispatchUploadPictureIntent(){
+        Intent intent = new Intent(Intent.ACTION_PICK,android.provider.MediaStore.Images.Media.EXTERNAL_CONTENT_URI);
+        startActivityForResult(intent, REQUEST_UPLOAD_PHOTO);
     }
 
     @Override
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
         super.onActivityResult(requestCode, resultCode, data);
+        imageView = findViewById(R.id.imageView2);
         if(this.REQUEST_TAKE_PHOTO == requestCode && resultCode == RESULT_OK){
             Bitmap reducedPhoto = setReducedImageSize();
             rotateImage(reducedPhoto);
-            galleryAddPic();
+            galleryAddPic(photoFile);
+        }
+        else if(this.REQUEST_UPLOAD_PHOTO == requestCode && resultCode == RESULT_OK){
+            Uri selectedImage = data.getData();
+            imageView.setImageURI(selectedImage);
+
+            /* //IF THAT DOESN'T WORK TRY:
+            String[] filePathColumn = { MediaStore.Images.Media.DATA };
+            Cursor cursor = getContentResolver().query(selectedImage,
+                    filePathColumn, null, null, null);
+            cursor.moveToFirst();
+            int columnIndex = cursor.getColumnIndex(filePathColumn[0]);
+            String picturePath = cursor.getString(columnIndex);
+            cursor.close();
+            imageView.setImageBitmap(BitmapFactory.decodeFile(picturePath));*/
         }
     }
 
+
     private Bitmap setReducedImageSize() {
 
-        imageView = findViewById(R.id.imageView2);
-
-        int targetW = imageView.getMaxWidth();
-        int targetH = imageView.getMaxHeight();
+        int targetW = imageView.getWidth();
+        int targetH = imageView.getHeight();
 
         BitmapFactory.Options bmOptions = new BitmapFactory.Options();
         bmOptions.inJustDecodeBounds = true;
@@ -168,49 +190,12 @@ public class MainActivity extends AppCompatActivity {
         MediaStore.Images.Media.insertImage(getContentResolver(), image, imageFileName , "description");  // Saves the image.
     }*/
 
-    private void galleryAddPic() {
-        Intent mediaScanIntent = new Intent(Intent.ACTION_MEDIA_SCANNER_SCAN_FILE);
-        File f = new File(currentPhotoPath);
-        Uri contentUri = Uri.fromFile(f);
-        mediaScanIntent.setData(contentUri);
-        this.sendBroadcast(mediaScanIntent);
-    }
-    private void uploadPhoto(){}
-
-
-
-
-
-
-
-    /*public void takePhoto(){
-        Intent intent = new Intent(MediaStore.ACTION_IMAGE_CAPTURE);
-        file = Uri.fromFile(getOutputMediaFile());
-        intent.putExtra(MediaStore.EXTRA_OUTPUT, file);
-        startActivityForResult(intent, 1);
+    public void galleryAddPic(File file) {
+        Uri contentUri = Uri.fromFile(file);
+        Intent mediaScanIntent = new Intent(Intent.ACTION_MEDIA_SCANNER_SCAN_FILE,contentUri);
+        sendBroadcast(mediaScanIntent);
     }
 
-    public void uploadPhoto(){
-        Intent intent = new   Intent(Intent.ACTION_PICK,android.provider.MediaStore.Images.Media.EXTERNAL_CONTENT_URI);
-        startActivityForResult(intent, 2);
-    }
-
-    @Override
-    protected void onActivityResult(int requestCode, int resultCode, Intent data) {
-        super.onActivityResult(requestCode, resultCode, data);
-        /*if (requestCode == 1) {
-            if (resultCode == RESULT_OK) {
-                //imageView.setImageURI(file);
-            }
-        }
-    }
-
-    public File getOutputMediaFile(){
-        File mediaStorageDir = new File(Environment.getExternalStoragePublicDirectory(
-                Environment.DIRECTORY_PICTURES).getAbsolutePath());
-        return new File(Environment.getExternalStoragePublicDirectory(
-                Environment.DIRECTORY_PICTURES).getAbsolutePath()+"/picture.jpg");
-    }*/
 
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
