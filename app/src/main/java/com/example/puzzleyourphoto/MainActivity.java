@@ -1,12 +1,6 @@
 package com.example.puzzleyourphoto;
 
-import android.content.Context;
 import android.content.Intent;
-import android.database.Cursor;
-import android.graphics.Bitmap;
-import android.graphics.BitmapFactory;
-import android.graphics.Matrix;
-import android.media.ExifInterface;
 import android.net.Uri;
 import android.os.Bundle;
 
@@ -14,15 +8,17 @@ import android.os.Bundle;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.widget.Toolbar;
 import androidx.core.content.FileProvider;
+import androidx.core.view.ViewCompat;
 
 import android.os.Environment;
 import android.provider.MediaStore;
 import android.view.View;
 import android.view.Menu;
 import android.view.MenuItem;
-import android.widget.ImageView;
 
 import com.getbase.floatingactionbutton.FloatingActionButton;
+import com.getbase.floatingactionbutton.FloatingActionsMenu;
+import com.scwang.wave.MultiWaveHeader;
 
 import java.io.File;
 import java.io.IOException;
@@ -35,9 +31,10 @@ public class MainActivity extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
-        Toolbar toolbar = findViewById(R.id.toolbar);
-        setSupportActionBar(toolbar);
 
+        initLook();
+
+        //Action buttons
         FloatingActionButton fab1 = findViewById(R.id.takephotobtn);
         fab1.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -55,35 +52,28 @@ public class MainActivity extends AppCompatActivity {
         });
     }
 
-    @Override
-    public boolean onCreateOptionsMenu(Menu menu) {
-        // Inflate the menu; this adds items to the action bar if it is present.
-        getMenuInflater().inflate(R.menu.menu_main, menu);
-        return true;
+    private void initLook(){
+        //Toolbar
+        Toolbar toolbar = findViewById(R.id.toolbar);
+        setSupportActionBar(toolbar);
+
+        //WaveHeader
+        MultiWaveHeader waveHeader = findViewById(R.id.waveHeader);
+        waveHeader.start();
+        waveHeader.isRunning();
+
+        //Plus button
+        FloatingActionsMenu pls = findViewById(R.id.plusbtn);
+        pls.bringToFront();
     }
 
-    String currentPhotoPath;
-    ImageView imageView;
-
-    private File createImageFile() throws IOException {
-        // Create an image file name
-        String timeStamp = new SimpleDateFormat("yyyyMMdd_HHmmss").format(new Date());
-        String imageFileName = "JPEG_" + timeStamp + "_";
-        File storageDir = getExternalFilesDir(Environment.DIRECTORY_PICTURES);
-        File image = File.createTempFile(
-                imageFileName,  /* prefix */
-                ".jpg",         /* suffix */
-                storageDir      /* directory */
-        );
-        // Save a file: path for use with ACTION_VIEW intents
-        currentPhotoPath = image.getAbsolutePath();
-        return image;
-    }
-
+    static String currentPhotoPath;
     static final int REQUEST_TAKE_PHOTO = 1;
     static final int REQUEST_UPLOAD_PHOTO = 2;
+    static int requestedCode;
     File photoFile;
 
+    //Take Picture
     private void dispatchTakePictureIntent() {
         Intent takePictureIntent = new Intent(MediaStore.ACTION_IMAGE_CAPTURE);
         // Ensure that there's a camera activity to handle the intent
@@ -102,98 +92,59 @@ public class MainActivity extends AppCompatActivity {
                         "com.example.android.fileprovider",
                         photoFile);
                 takePictureIntent.putExtra(MediaStore.EXTRA_OUTPUT, photoURI);
+                requestedCode = REQUEST_TAKE_PHOTO;
                 startActivityForResult(takePictureIntent, REQUEST_TAKE_PHOTO);
             }
         }
     }
 
+    //Create file for photo taken
+    private File createImageFile() throws IOException {
+        // Create an image file name
+        String timeStamp = new SimpleDateFormat("yyyyMMdd_HHmmss").format(new Date());
+        String imageFileName = "JPEG_" + timeStamp + "_";
+        File storageDir = getExternalFilesDir(Environment.DIRECTORY_PICTURES);
+        File image = File.createTempFile(
+                imageFileName,  /* prefix */
+                ".jpg",         /* suffix */
+                storageDir      /* directory */
+        );
+        // Save a file: path for use with ACTION_VIEW intents
+        currentPhotoPath = image.getAbsolutePath();
+        return image;
+    }
+
+    //Upload picture
     public void dispatchUploadPictureIntent(){
         Intent intent = new Intent(Intent.ACTION_PICK,android.provider.MediaStore.Images.Media.EXTERNAL_CONTENT_URI);
+        requestedCode = REQUEST_UPLOAD_PHOTO;
         startActivityForResult(intent, REQUEST_UPLOAD_PHOTO);
     }
 
+    //Send the info to GameActivity
     @Override
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
         super.onActivityResult(requestCode, resultCode, data);
-        imageView = findViewById(R.id.imageView2);
-        if(this.REQUEST_TAKE_PHOTO == requestCode && resultCode == RESULT_OK){
-            Bitmap reducedPhoto = setReducedImageSize();
-            rotateImage(reducedPhoto);
-            galleryAddPic(photoFile);
-        }
-        else if(this.REQUEST_UPLOAD_PHOTO == requestCode && resultCode == RESULT_OK){
-            Uri selectedImage = data.getData();
-            imageView.setImageURI(selectedImage);
-
-            /* //IF THAT DOESN'T WORK TRY:
-            String[] filePathColumn = { MediaStore.Images.Media.DATA };
-            Cursor cursor = getContentResolver().query(selectedImage,
-                    filePathColumn, null, null, null);
-            cursor.moveToFirst();
-            int columnIndex = cursor.getColumnIndex(filePathColumn[0]);
-            String picturePath = cursor.getString(columnIndex);
-            cursor.close();
-            imageView.setImageBitmap(BitmapFactory.decodeFile(picturePath));*/
+        if (resultCode == RESULT_OK) {
+            System.out.println(requestedCode);
+            Intent intent = new Intent(MainActivity.this, GameActivity.class);
+            intent.putExtra("REQUEST_UPLOAD_PHOTO", REQUEST_UPLOAD_PHOTO);
+            intent.putExtra("REQUEST_TAKE_PHOTO", REQUEST_TAKE_PHOTO);
+            intent.putExtra("REQUEST_CODE", requestedCode);
+            intent.putExtra("CURRENT_PHOTO_PATH", currentPhotoPath);
+            if (requestCode == REQUEST_UPLOAD_PHOTO){
+                intent.putExtra("URI", data.getData().toString());
+            }
+            startActivity(intent);
         }
     }
 
-
-    private Bitmap setReducedImageSize() {
-
-        int targetW = imageView.getWidth();
-        int targetH = imageView.getHeight();
-
-        BitmapFactory.Options bmOptions = new BitmapFactory.Options();
-        bmOptions.inJustDecodeBounds = true;
-        BitmapFactory.decodeFile(currentPhotoPath, bmOptions);
-        int photoW = bmOptions.outWidth;
-        int photoH = bmOptions.outHeight;
-
-        int scaleFactor = Math.min(photoW/targetW, photoH/targetH);
-
-        bmOptions.inJustDecodeBounds = false;
-        bmOptions.inSampleSize = scaleFactor;
-
-        Bitmap reducedPhoto = BitmapFactory.decodeFile(currentPhotoPath, bmOptions);
-        imageView.setImageBitmap(reducedPhoto);
-
-        return  reducedPhoto;
-    }
-
-    private void rotateImage(Bitmap bitmap){
-        ExifInterface exifInterface = null;
-        try {
-            exifInterface = new ExifInterface(currentPhotoPath);
-        }catch (IOException e){
-            e.printStackTrace();
-        }
-        int orientation = exifInterface.getAttributeInt(ExifInterface.TAG_ORIENTATION, ExifInterface.ORIENTATION_UNDEFINED);
-        Matrix matrix = new Matrix();
-        switch (orientation) {
-            case ExifInterface.ORIENTATION_ROTATE_90:
-                matrix.setRotate(90);
-                break;
-            case ExifInterface.ORIENTATION_ROTATE_180:
-                matrix.setRotate(180);
-                break;
-            default:
-        }
-        Bitmap rotatedBitmap = Bitmap.createBitmap(bitmap, 0, 0, bitmap.getWidth(), bitmap.getHeight(), matrix, true);
-        imageView.setImageBitmap(rotatedBitmap);
-    }
-
-
-    /*private void imageToRoll(){
-        ImageView imageView = (ImageView) findViewById(R.id.imageView2);
-        imageView.buildDrawingCache();
-        Bitmap image = imageView.getDrawingCache();  // Gets the Bitmap
-        MediaStore.Images.Media.insertImage(getContentResolver(), image, imageFileName , "description");  // Saves the image.
-    }*/
-
-    public void galleryAddPic(File file) {
-        Uri contentUri = Uri.fromFile(file);
-        Intent mediaScanIntent = new Intent(Intent.ACTION_MEDIA_SCANNER_SCAN_FILE,contentUri);
-        sendBroadcast(mediaScanIntent);
+    //Menu
+    @Override
+    public boolean onCreateOptionsMenu(Menu menu) {
+        // Inflate the menu; this adds items to the action bar if it is present.
+        getMenuInflater().inflate(R.menu.menu_main, menu);
+        return true;
     }
 
 
