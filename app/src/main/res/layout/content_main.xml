@@ -12,16 +12,16 @@
     <com.getbase.floatingactionbutton.FloatingActionsMenu
         android:id="@+id/plusbtn"
         android:layout_width="match_parent"
-        android:layout_height="wrap_content"
+        android:layout_height="303dp"
 
         android:layout_alignParentStart="true"
         android:layout_alignParentTop="true"
         android:layout_alignParentEnd="true"
         android:layout_alignParentBottom="true"
         android:layout_marginStart="0dp"
-        android:layout_marginTop="0dp"
+        android:layout_marginTop="374dp"
         android:layout_marginEnd="0dp"
-        android:layout_marginBottom="0dp"
+        android:layout_marginBottom="-2dp"
         app:fabSize="normal"
         app:fab_addButtonColorNormal="@color/colorPrimary"
         app:fab_addButtonColorPressed="@color/colorPrimaryDark"
@@ -54,6 +54,61 @@
             app:fab_icon="@drawable/ic_photo_mine2"
             app:fab_size="mini"
             app:fab_title="Upload a photo from gallery" />
-
     </com.getbase.floatingactionbutton.FloatingActionsMenu>
+
+    <com.scwang.wave.MultiWaveHeader
+        android:id="@+id/waveHeader"
+        android:layout_width="match_parent"
+        android:layout_height="208dp"
+        android:layout_alignStart="@+id/plusbtn"
+        android:layout_alignTop="@+id/plusbtn"
+        android:layout_alignEnd="@+id/plusbtn"
+        android:layout_alignParentStart="true"
+        android:layout_alignParentBottom="true"
+        android:layout_marginStart="0dp"
+        android:layout_marginTop="93dp"
+        android:layout_marginEnd="0dp"
+        android:scaleY="-1"
+        app:mwhCloseColor="@color/colorPrimary"
+        app:mwhColorAlpha="0.45"
+        app:mwhGradientAngle="45"
+        app:mwhIsRunning="true"
+        app:mwhProgress="1"
+        app:mwhStartColor="@color/colorAccentPressed"
+        app:mwhVelocity="1"
+        app:mwhWaveHeight="50dp"
+        app:mwhWaves="MultiWave" />
+
+    <TextView
+        android:id="@+id/title"
+        android:layout_width="wrap_content"
+        android:layout_height="184dp"
+        android:layout_above="@+id/waveHeader"
+        android:layout_alignParentStart="true"
+        android:layout_alignParentTop="true"
+        android:layout_alignParentEnd="true"
+        android:layout_marginStart="34dp"
+        android:layout_marginTop="75dp"
+        android:layout_marginEnd="33dp"
+        android:layout_marginBottom="115dp"
+        android:fontFamily="cursive"
+        android:text="@string/app_name"
+        android:textAlignment="center"
+        android:textSize="70sp"
+        android:textStyle="bold|italic" />
+
+    <TextView
+        android:id="@+id/desc"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_above="@+id/waveHeader"
+        android:layout_alignParentStart="true"
+        android:layout_alignParentEnd="true"
+        android:layout_marginStart="34dp"
+        android:layout_marginEnd="34dp"
+        android:layout_marginBottom="0dp"
+        android:text="@string/desc"
+        android:textAlignment="center"
+        android:textSize="20sp" />
+
 </RelativeLayout>

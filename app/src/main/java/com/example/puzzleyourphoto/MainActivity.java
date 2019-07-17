@@ -8,6 +8,7 @@ import android.os.Bundle;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.widget.Toolbar;
 import androidx.core.content.FileProvider;
+import androidx.core.view.ViewCompat;
 
 import android.os.Environment;
 import android.provider.MediaStore;
@@ -16,6 +17,8 @@ import android.view.Menu;
 import android.view.MenuItem;
 
 import com.getbase.floatingactionbutton.FloatingActionButton;
+import com.getbase.floatingactionbutton.FloatingActionsMenu;
+import com.scwang.wave.MultiWaveHeader;
 
 import java.io.File;
 import java.io.IOException;
@@ -29,11 +32,9 @@ public class MainActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
-        //Toolbar
-        Toolbar toolbar = findViewById(R.id.toolbar);
-        setSupportActionBar(toolbar);
+        initLook();
 
-        //Buttons
+        //Action buttons
         FloatingActionButton fab1 = findViewById(R.id.takephotobtn);
         fab1.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -49,6 +50,21 @@ public class MainActivity extends AppCompatActivity {
                 dispatchUploadPictureIntent();
             }
         });
+    }
+
+    private void initLook(){
+        //Toolbar
+        Toolbar toolbar = findViewById(R.id.toolbar);
+        setSupportActionBar(toolbar);
+
+        //WaveHeader
+        MultiWaveHeader waveHeader = findViewById(R.id.waveHeader);
+        waveHeader.start();
+        waveHeader.isRunning();
+
+        //Plus button
+        FloatingActionsMenu pls = findViewById(R.id.plusbtn);
+        pls.bringToFront();
     }
 
     static String currentPhotoPath;
@@ -82,6 +98,7 @@ public class MainActivity extends AppCompatActivity {
         }
     }
 
+    //Create file for photo taken
     private File createImageFile() throws IOException {
         // Create an image file name
         String timeStamp = new SimpleDateFormat("yyyyMMdd_HHmmss").format(new Date());
@@ -104,6 +121,7 @@ public class MainActivity extends AppCompatActivity {
         startActivityForResult(intent, REQUEST_UPLOAD_PHOTO);
     }
 
+    //Send the info to GameActivity
     @Override
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
         super.onActivityResult(requestCode, resultCode, data);
@@ -121,7 +139,7 @@ public class MainActivity extends AppCompatActivity {
         }
     }
 
-
+    //Menu
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
         // Inflate the menu; this adds items to the action bar if it is present.

@@ -1,82 +1,111 @@
 package com.example.puzzleyourphoto;
 
 import androidx.appcompat.app.AppCompatActivity;
-import androidx.constraintlayout.widget.ConstraintLayout;
+import androidx.appcompat.widget.Toolbar;
 
 import android.content.Context;
 import android.content.Intent;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
-import android.graphics.Canvas;
 import android.graphics.Matrix;
-import android.graphics.Rect;
-import android.graphics.RectF;
-import android.graphics.drawable.Drawable;
+import android.graphics.drawable.BitmapDrawable;
 import android.media.ExifInterface;
 import android.net.Uri;
 import android.os.Bundle;
 import android.provider.MediaStore;
-import android.view.MotionEvent;
-import android.widget.ImageView;
+import android.widget.Button;
+import android.widget.RelativeLayout;
 import android.widget.Toast;
 
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 
 public class GameActivity extends AppCompatActivity {
-    static ImageView imageView;
+
+    private static GestureDetectGridView myGridView;
+    private static final int numberOfColumns = 3;
+    private static final int numberOfRows = 4;
+    private static final int numberOfChunks = numberOfColumns * numberOfRows;
+
+    public static final String up = "up";
+    public static final String down = "down";
+    public static final String left = "left";
+    public static final String right = "right";
+
     static String currentPhotoPath;
     static int REQUEST_TAKE_PHOTO;
     static int REQUEST_UPLOAD_PHOTO;
     static int requestedCode;
+    static Uri selectedImage;
+
+
+    private static List<Bitmap> imageParts;
+    private static int chunkHeight, chunkWidth;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_game);
 
-        imageView = findViewById(R.id.imageView2);
+        initLook();
+        getIntentInfo();
+
+        if (REQUEST_TAKE_PHOTO == requestedCode) {
+            //Split the image
+            Bitmap reducedPhoto = setReducedImageSize();
+            splitImage(rotateImage(reducedPhoto));
+            //Display split image
+            display(this);
+        } else if (REQUEST_UPLOAD_PHOTO == requestedCode) {
+            try {
+                //Split the image
+                Bitmap bitmap = MediaStore.Images.Media.getBitmap(this.getContentResolver(), selectedImage);
+                splitImage(bitmap);
+                //Display the split image
+                display(this);
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+        }
+    }
+
+    //We use this string array to verify whether the game is finished or not
+    private static String[] tileList;
+
+    private void initLook() {
+        //Toolbar
+        Toolbar toolbar = findViewById(R.id.toolbar);
+        setSupportActionBar(toolbar);
+
+        myGridView = (GestureDetectGridView) findViewById(R.id.grid);
+        myGridView.setNumColumns(numberOfColumns);
+
+        tileList = new String[numberOfChunks];
+        for (int i = 0; i < numberOfChunks; i++) {
+            tileList[i] = String.valueOf(i);
+        }
+    }
+
+    //Get info from intent
+    private void getIntentInfo() {
         Intent intent = getIntent();
 
         currentPhotoPath = intent.getStringExtra("CURRENT_PHOTO_PATH");
         REQUEST_TAKE_PHOTO = intent.getExtras().getInt("REQUEST_TAKE_PHOTO");
         REQUEST_UPLOAD_PHOTO = intent.getExtras().getInt("REQUEST_UPLOAD_PHOTO");
         requestedCode = intent.getExtras().getInt("REQUEST_CODE");
-
-        System.out.println(requestedCode);
-
-        if(REQUEST_TAKE_PHOTO == requestedCode){
-        Bitmap reducedPhoto = setReducedImageSize();
-        splitImage(rotateImage(reducedPhoto));
+        if (REQUEST_UPLOAD_PHOTO == requestedCode)
+            selectedImage = Uri.parse(intent.getStringExtra("URI"));
     }
-        else if(REQUEST_UPLOAD_PHOTO == requestedCode){
-        Uri selectedImage = Uri.parse(intent.getStringExtra("URI"));
-            try {
-                Bitmap bitmap = MediaStore.Images.Media.getBitmap(this.getContentResolver(), selectedImage);
-                splitImage(bitmap);
-            } catch (IOException e) {
-                e.printStackTrace();
-            }
 
-            /* //IF THAT DOESN'T WORK TRY:
-            String[] filePathColumn = { MediaStore.Images.Media.DATA };
-            Cursor cursor = getContentResolver().query(selectedImage,
-                    filePathColumn, null, null, null);
-            cursor.moveToFirst();
-            int columnIndex = cursor.getColumnIndex(filePathColumn[0]);
-            String picturePath = cursor.getString(columnIndex);
-            cursor.close();
-            imageView.setImageBitmap(BitmapFactory.decodeFile(picturePath));*/
-    }
-}
-
-
+    //Reduce image size to fit the gridView
     private Bitmap setReducedImageSize() {
 
-        int targetW = imageView.getLayoutParams().width;
-        int targetH = imageView.getLayoutParams().height;
+        int targetW = myGridView.getLayoutParams().width;
+        int targetH = myGridView.getLayoutParams().height;
 
         BitmapFactory.Options bmOptions = new BitmapFactory.Options();
         bmOptions.inJustDecodeBounds = true;
@@ -84,22 +113,26 @@ public class GameActivity extends AppCompatActivity {
         int photoW = bmOptions.outWidth;
         int photoH = bmOptions.outHeight;
 
-        int scaleFactor = Math.min(photoW/targetW, photoH/targetH);
+        int scaleFactor = Math.min(photoW / targetW, photoH / targetH);
+
+        System.out.println(targetW);
+        System.out.println(targetW);
 
         bmOptions.inJustDecodeBounds = false;
         bmOptions.inSampleSize = scaleFactor;
 
         Bitmap reducedPhoto = BitmapFactory.decodeFile(currentPhotoPath, bmOptions);
-        imageView.setImageBitmap(reducedPhoto);
+        //imageView.setImageBitmap(reducedPhoto);
 
-        return  reducedPhoto;
+        return reducedPhoto;
     }
 
-    private Bitmap rotateImage(Bitmap bitmap){
+    //Rotate the image if it's the case
+    private Bitmap rotateImage(Bitmap bitmap) {
         ExifInterface exifInterface = null;
         try {
             exifInterface = new ExifInterface(MainActivity.currentPhotoPath);
-        }catch (IOException e){
+        } catch (IOException e) {
             e.printStackTrace();
         }
         int orientation = exifInterface.getAttributeInt(ExifInterface.TAG_ORIENTATION, ExifInterface.ORIENTATION_UNDEFINED);
@@ -121,97 +154,82 @@ public class GameActivity extends AppCompatActivity {
         return rotatedBitmap;
     }
 
-    static final int numberOfColumns = 3;
-    static final int numberOfRows = 4;
-    private static List<Bitmap> chunkedImage;
-    static int chunkWidth;
-    static int chunkHeight;
-
-    private void splitImage(Bitmap bitmap){
-        chunkedImage = new ArrayList<>(numberOfRows * numberOfColumns);
+    //Get the imageParts from the image
+    private void splitImage(Bitmap bitmap) {
+        imageParts = new ArrayList<>();
         int yCoord = 0;
-        chunkHeight = bitmap.getHeight()/numberOfRows;
-        chunkWidth = bitmap.getWidth()/numberOfColumns;
+        chunkHeight = bitmap.getHeight() / numberOfRows;
+        System.out.println(chunkHeight);
+        chunkWidth = bitmap.getWidth() / numberOfColumns;
+        System.out.println(chunkWidth);
         for (int y = 0; y < numberOfRows; ++y) {
             int xCoord = 0;
             for (int x = 0; x < numberOfColumns; ++x) {
-                chunkedImage.add(Bitmap.createBitmap(bitmap, xCoord, yCoord, chunkWidth, chunkHeight));
+                Bitmap currentBitmap = Bitmap.createBitmap(bitmap, xCoord, yCoord, chunkWidth, chunkHeight);
+                imageParts.add(currentBitmap);
                 xCoord += chunkWidth;
             }
             yCoord += chunkHeight;
         }
-
-        Collections.shuffle(chunkedImage);
-
-        //create a bitmap of a size which can hold the complete image after merging
-        resultBitmap = Bitmap.createBitmap(chunkWidth * numberOfColumns, chunkHeight * numberOfRows,  Bitmap.Config.ARGB_8888);
-
-        //create a canvas for drawing all those small images
-        Canvas canvas = new Canvas(resultBitmap);
-        int count = 0;
-        for(int rows = 0; rows < numberOfRows; rows++){
-            for(int cols = 0; cols < numberOfColumns; cols++){
-                canvas.drawBitmap(chunkedImage.get(count), chunkWidth * cols, chunkHeight * rows, null);
-                canvases.add(new Canvas(chunkedImage.get(count)));
-                count++;
-            }
-        }
-        imageView.setImageBitmap(resultBitmap);
+        //Shuffle the tileList for random order of imageParts
+        Collections.shuffle(Arrays.asList(tileList));
     }
 
-    List<Canvas> canvases = new ArrayList<>(20);
-    Bitmap resultBitmap;
+    //Display imageParts as button backgrounds in the gridView
+    private static void display(Context context) {
+        ArrayList<Button> buttons = new ArrayList<>();
+        Button button;
 
-
-    @Override
-    public boolean onTouchEvent(MotionEvent event)
-    {
-
-        switch(event.getAction())
-        {
-            case MotionEvent.ACTION_DOWN:
-
-                RectF bounds = new RectF();
-                Drawable drawable = imageView.getDrawable();
-                if (drawable != null) {
-                    imageView.getImageMatrix().mapRect(bounds, new RectF(drawable.getBounds()));
-                }
-
-                int[] location = new int[2];
-                imageView.getLocationInWindow(location);
-
-                Rect imageViewRectangle = new Rect();
-                imageViewRectangle.left = location[0] + (int) bounds.left;
-                imageViewRectangle.top = location[1] + (int) bounds.top;
-                imageViewRectangle.right = location[0] + (int) bounds.right;
-                imageViewRectangle.bottom = location[1] + (int) bounds.bottom;
-
-
-                System.out.println(imageViewRectangle);
-                System.out.println(bounds.right);
-                System.out.println(event.getRawX() + "\n" + event.getRawY());
-
-                int xCoordinate = (int) event.getRawX();
-                int yCoordinate = (int) event.getRawY();
-
-                if (imageViewRectangle.contains(xCoordinate, yCoordinate)) {
-                    //PROBLEMS WITH LAST ROW AND COLUMN!!!
-                    int row = Math.round((yCoordinate - imageViewRectangle.top) / chunkHeight);
-                    System.out.println(yCoordinate);
-                    System.out.println(yCoordinate - imageViewRectangle.top);
-                    System.out.println(canvases.get(0).getHeight());
-                    int column = Math.round((xCoordinate - imageViewRectangle.left) / chunkWidth);
-                    System.out.println(column);
-                    Context context = getApplicationContext();
-                    CharSequence text = ""+row+" "+column;
-                    int duration = Toast.LENGTH_SHORT;
-
-                    Toast toast = Toast.makeText(context, text, duration);
-                    toast.show();
-                }
-                return true;
+        for (int i = 0; i < tileList.length; i++) {
+            button = new Button(context);
+            for (int j = 0; j < numberOfChunks; j++)
+                //each tileList[i] contains a string with a number and we display the imagePart related to that number
+                if (tileList[i].equals("" + j))
+                    button.setBackground(new BitmapDrawable(context.getResources(), imageParts.get(j)));
+            buttons.add(button);
         }
-        return false;
+        myGridView.setAdapter(new CustomAdapter(buttons, chunkWidth, chunkHeight));
     }
 
+    //Swap two tiles in the tileList -> swap two images backgrounds -> the display to see the changes
+    private static void swap(Context context, int currentPosition, int positionsToSwapWith) {
+        String newPosition = tileList[currentPosition + positionsToSwapWith];
+        tileList[currentPosition + positionsToSwapWith] = tileList[currentPosition];
+        tileList[currentPosition] = newPosition;
+        display(context);
+
+        if (isSolved()) Toast.makeText(context, "YOU WIN!", Toast.LENGTH_SHORT).show();
+    }
+
+
+    public static void moveTiles(Context context, String direction, int position) {
+        if (direction.equals(up)) {
+            //Upper row cannot move up
+            if (position - numberOfColumns >= 0) swap(context, position, -numberOfColumns);
+            else Toast.makeText(context, "Invalid move!", Toast.LENGTH_SHORT).show();
+        } else if (direction.equals(left)) {
+            //Left column cannot move left
+            if (position % numberOfColumns != 0) swap(context, position, -1);
+            else Toast.makeText(context, "Invalid move!", Toast.LENGTH_SHORT).show();
+        } else if (direction.equals(right)) {
+            //Right column cannot move rigth
+            if ((position + 1) % numberOfColumns != 0) swap(context, position, 1);
+            else Toast.makeText(context, "Invalid move!", Toast.LENGTH_SHORT).show();
+        } else {
+            //Down row cannot move down
+            if (position <= numberOfColumns * (numberOfRows - 1))
+                swap(context, position, numberOfColumns);
+            else Toast.makeText(context, "Invalid move!", Toast.LENGTH_SHORT).show();
+        }
+    }
+
+    //Verify whether each photoPiece is its right place
+    private static boolean isSolved() {
+        boolean solved = true;
+        for (int i = 0; i < tileList.length && solved; i++)
+            if (!(tileList[i].equals(String.valueOf(i))))
+                solved = false;
+        return solved;
+    }
 }
+
