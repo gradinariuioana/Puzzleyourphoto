@@ -2,8 +2,10 @@ package com.example.puzzleyourphoto;
 
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.AbsListView;
 import android.widget.BaseAdapter;
 import android.widget.Button;
+import android.widget.GridView;
 
 import java.util.ArrayList;
 
@@ -34,15 +36,17 @@ public class CustomAdapter extends BaseAdapter {
     public View getView(int position, View convertView, ViewGroup parent) {
         Button button;
 
+        //If I do not have what to reuse I take the button from the list
         if (convertView == null) {
             button = buttons.get(position);
         }
+        //I reuse the convertView
         else {
             button = (Button) convertView;
         }
 
-        android.widget.AbsListView.LayoutParams params = new android.widget.AbsListView.LayoutParams(columnWidth, columnHeight);
-        button.setLayoutParams(params);
+        //Provide a place to hold the view type
+        button.setLayoutParams(new AbsListView.LayoutParams(columnWidth, columnHeight));
 
         return button;
     }
