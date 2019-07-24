@@ -1,11 +1,14 @@
 package com.example.puzzleyourphoto;
 
+import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.widget.Toolbar;
 
+import android.app.Activity;
+import android.app.AlertDialog;
 import android.content.Context;
+import android.content.DialogInterface;
 import android.content.Intent;
-import android.content.res.Configuration;
 import android.database.Cursor;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
@@ -14,9 +17,15 @@ import android.graphics.drawable.BitmapDrawable;
 import android.media.ExifInterface;
 import android.net.Uri;
 import android.os.Bundle;
+import android.os.CountDownTimer;
+import android.os.PersistableBundle;
 import android.provider.MediaStore;
+import android.view.View;
 import android.widget.Button;
+import android.widget.TextView;
 import android.widget.Toast;
+
+import org.jetbrains.annotations.NotNull;
 
 import java.io.IOException;
 import java.util.ArrayList;
@@ -29,8 +38,7 @@ public class GameActivity extends AppCompatActivity {
     private static GestureDetectGridView myGridView;
 
     private static int numberOfColumns = 3;
-    private static int numberOfRows = 4;
-    private static final int numberOfSubImages = numberOfColumns * numberOfRows;
+    private static final int numberOfSubImages = numberOfColumns * numberOfColumns;
 
     public static final String up = "up";
     public static final String down = "down";
@@ -44,9 +52,19 @@ public class GameActivity extends AppCompatActivity {
     static Uri selectedImage;
     private static int targetH, targetW;
 
+    private static boolean shuffled  = false;
 
     private static List<Bitmap> imageParts;
     private static int buttonHeight, buttonWidth;
+
+    //We use this string array to verify whether the game is finished or not
+    private static String[] tileList;
+    private static String[] shuffledTileList;
+
+    private static CountDownTimer countDownTimer;
+    private static long timeLeftOnTimer = 30000;
+    public static long counter;
+    private static String TIME_KEY = "TIME_KEY";
 
 
     @Override
@@ -56,9 +74,12 @@ public class GameActivity extends AppCompatActivity {
 
         initLook();
         getIntentInfo();
+        startCounter();
 
+        //Create a copy of the context to use in run method
         final Context con = this;
 
+        //To be able to measure the grid view after it is drawn -> add these actions to the end of the running queue
         myGridView.post(new Runnable() {
             @Override
             public void run() {
@@ -85,11 +106,9 @@ public class GameActivity extends AppCompatActivity {
         });
     }
 
-    //We use this string array to verify whether the game is finished or not
-    private static String[] tileList;
-
     //Get the initial look of the activity
     private void initLook() {
+
         //Toolbar
         Toolbar toolbar = findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
@@ -102,6 +121,16 @@ public class GameActivity extends AppCompatActivity {
         for (int i = 0; i < numberOfSubImages; i++) {
             tileList[i] = String.valueOf(i);
         }
+
+        final GameActivity gameActivity = this;
+
+        Button restart = findViewById(R.id.restart);
+        restart.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                restartActivity(gameActivity);
+            }
+        });
     }
 
     //Get info from intent
@@ -116,7 +145,26 @@ public class GameActivity extends AppCompatActivity {
             selectedImage = Uri.parse(intent.getStringExtra("URI"));
     }
 
-    //Reduce image size
+    private void startCounter(){
+        counter = timeLeftOnTimer / 1000;
+        final TextView textView = findViewById(R.id.timer);
+        countDownTimer = new CountDownTimer(timeLeftOnTimer, 1000){
+            public void onTick(long millisUntilFinished){
+                timeLeftOnTimer = millisUntilFinished;
+                textView.setText("Time left: " + String.valueOf(counter));
+                counter = millisUntilFinished / 1000;
+                if (counter <= 8)
+                {
+                    textView.setTextColor(getColor(R.color.Red));
+                }
+            }
+            public  void onFinish(){
+                textView.setText("Time expired!!");
+            }
+        }.start();
+    }
+
+    //Reduce image size to be able to work with it
     private Bitmap reduceImageSize() {
         targetH = myGridView.getHeight();
         targetW = myGridView.getWidth();
@@ -187,7 +235,7 @@ public class GameActivity extends AppCompatActivity {
         return rotatedBitmap;
     }
 
-    //Reduce image size to fit the gridView
+    //Scale image to fit the gridView
     private Bitmap scaleBitmap(Bitmap bitmap) {
 
         Bitmap reducedPhoto = Bitmap.createScaledBitmap(bitmap, targetW, targetH, true);
@@ -196,12 +244,12 @@ public class GameActivity extends AppCompatActivity {
 
 
     //Get the imageParts from the image
-    private void splitImage(Bitmap bitmap) {
+    private void splitImage(@NotNull Bitmap bitmap) {
         imageParts = new ArrayList<>();
         int yCoord = 0;
-        buttonHeight = bitmap.getHeight() / numberOfRows;
+        buttonHeight = bitmap.getHeight() / numberOfColumns;
         buttonWidth = bitmap.getWidth() / numberOfColumns;
-        for (int y = 0; y < numberOfRows; ++y) {
+        for (int y = 0; y < numberOfColumns; ++y) {
             int xCoord = 0;
             for (int x = 0; x < numberOfColumns; ++x) {
                 Bitmap currentBitmap = Bitmap.createBitmap(bitmap, xCoord, yCoord, buttonWidth, buttonHeight);
@@ -211,9 +259,12 @@ public class GameActivity extends AppCompatActivity {
             yCoord += buttonHeight;
         }
         //Shuffle the tileList for random order of imageParts
-        Collections.shuffle(Arrays.asList(tileList));
-        System.out.println(bitmap.getHeight());
-        System.out.println(imageParts.get(0).getHeight());
+        if (!shuffled) {
+            Collections.shuffle(Arrays.asList(tileList));
+            shuffledTileList = tileList;
+            shuffled = true;
+        }
+        else tileList = shuffledTileList;
     }
 
     //Display imageParts as button backgrounds in the gridView
@@ -233,33 +284,60 @@ public class GameActivity extends AppCompatActivity {
     }
 
     //Swap two tiles in the tileList -> swap two images backgrounds -> the display to see the changes
-    private static void swap(Context context, int currentPosition, int positionsToSwapWith) {
+    private static void swapTiles(final Context context, int currentPosition, int positionsToSwapWith) {
+        final GameActivity gameActivity = (GameActivity) context;
         String newPosition = tileList[currentPosition + positionsToSwapWith];
         tileList[currentPosition + positionsToSwapWith] = tileList[currentPosition];
         tileList[currentPosition] = newPosition;
         display(context);
 
-        if (isSolved()) Toast.makeText(context, "YOU WIN!", Toast.LENGTH_SHORT).show();
+        if (isSolved())
+        {
+            AlertDialog.Builder builder = new AlertDialog.Builder(context);
+            final AlertDialog myCustomDialog = builder
+                    .setTitle("Congratulations! You won!")
+                    .setMessage("Do you want to play another game with the same image?")
+                    .setPositiveButton(android.R.string.yes, new DialogInterface.OnClickListener() {
+
+                        public void onClick(DialogInterface dialog, int which) {
+                            restartActivity(gameActivity);
+                        }
+                    })
+                    .setNegativeButton(android.R.string.no, new DialogInterface.OnClickListener() {
+
+                        public void onClick(DialogInterface dialog, int which) {
+                            restartActivity(gameActivity);
+                        }
+                    })
+                    .setIcon(R.drawable.ic_star).create();
+            myCustomDialog.setOnShowListener( new DialogInterface.OnShowListener() {
+                @Override
+                public void onShow(DialogInterface arg0) {
+                    myCustomDialog.getButton(AlertDialog.BUTTON_POSITIVE).setTextColor(context.getColor(R.color.colorPrimaryComplementary));
+                    myCustomDialog.getButton(AlertDialog.BUTTON_NEGATIVE).setTextColor(context.getColor(R.color.colorPrimaryComplementary));
+                }});
+            myCustomDialog.show();
+        }
     }
 
-
-    public static void moveTiles(Context context, String direction, int position) {
+    //Move tiles
+    public static void moveTiles(Context context, @org.jetbrains.annotations.NotNull String direction, int position) {
         if (direction.equals(up)) {
             //Upper row cannot move up
-            if (position - numberOfColumns >= 0) swap(context, position, -numberOfColumns);
+            if (position - numberOfColumns >= 0) swapTiles(context, position, -numberOfColumns);
             else Toast.makeText(context, "Invalid move!", Toast.LENGTH_SHORT).show();
         } else if (direction.equals(left)) {
             //Left column cannot move left
-            if (position % numberOfColumns != 0) swap(context, position, -1);
+            if (position % numberOfColumns != 0) swapTiles(context, position, -1);
             else Toast.makeText(context, "Invalid move!", Toast.LENGTH_SHORT).show();
         } else if (direction.equals(right)) {
             //Right column cannot move rigth
-            if ((position + 1) % numberOfColumns != 0) swap(context, position, 1);
+            if ((position + 1) % numberOfColumns != 0) swapTiles(context, position, 1);
             else Toast.makeText(context, "Invalid move!", Toast.LENGTH_SHORT).show();
         } else {
             //Down row cannot move down
-            if (position <= numberOfColumns * (numberOfRows - 1))
-                swap(context, position, numberOfColumns);
+            if (position <= numberOfColumns * (numberOfColumns - 1))
+                swapTiles(context, position, numberOfColumns);
             else Toast.makeText(context, "Invalid move!", Toast.LENGTH_SHORT).show();
         }
     }
@@ -273,33 +351,18 @@ public class GameActivity extends AppCompatActivity {
         return solved;
     }
 
-    @Override
-    public void onConfigurationChanged(Configuration newConfig) {
-        super.onConfigurationChanged(newConfig);
-        if (newConfig.orientation == Configuration.ORIENTATION_LANDSCAPE) {
-            numberOfColumns = 4;
-            numberOfRows = 3;
+    public static void restartActivity(GameActivity gameActivity)
+    {
+        timeLeftOnTimer = 30000;
+        shuffled = false;
+        gameActivity.recreate();
+    }
 
-            if (REQUEST_TAKE_PHOTO == requestedCode) {
-                //Resize the image
-                Bitmap reduced = reduceImageSize();
-                Bitmap rotated = rotateImage(reduced);
-                splitImage(scaleBitmap(rotated));
-                //Display split image
-                display(this);
-            } else if (REQUEST_UPLOAD_PHOTO == requestedCode) {
-                try {
-                    //Split the image
-                    Bitmap bitmap = MediaStore.Images.Media.getBitmap(this.getContentResolver(), selectedImage);
-                    Bitmap rotated = rotateImage(bitmap);
-                    splitImage(scaleBitmap(rotated));
-                    //Display the split image
-                    display(this);
-                } catch (IOException e) {
-                    e.printStackTrace();
-                }
-            }
-        }
+    @Override
+    public void onSaveInstanceState(Bundle outState) {
+        super.onSaveInstanceState(outState);
+        outState.putLong(TIME_KEY, timeLeftOnTimer);
+        countDownTimer.cancel();
     }
 }
 

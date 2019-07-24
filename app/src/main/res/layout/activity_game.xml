@@ -5,8 +5,8 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:fitsSystemWindows="true"
-    tools:context=".MainActivity"
-    android:id="@+id/activityMainLayout">
+    tools:context=".GameActivity"
+    android:id="@+id/activityGameLayout">
 
     <include
         android:id="@+id/toolbar"
@@ -23,9 +23,63 @@
         android:layout_marginStart="30dp"
         android:layout_marginTop="30dp"
         android:layout_marginEnd="30dp"
-        android:layout_marginBottom="30dp"
+        android:layout_marginBottom="130dp"
         android:adjustViewBounds="true"
         android:stretchMode="columnWidth"
         tools:context="com.example.puzzleyourphoto.GameActivity"></com.example.puzzleyourphoto.GestureDetectGridView>
+
+    <RelativeLayout
+        android:id="@+id/actions"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_below="@id/grid"
+        android:layout_alignParentStart="true"
+        android:layout_alignParentEnd="true"
+        android:layout_alignParentBottom="true"
+        android:layout_marginStart="30dp"
+        android:layout_marginTop="-100dp"
+        android:layout_marginEnd="30dp"
+        android:layout_marginBottom="30dp">
+
+        <TextView
+            android:id="@+id/timer"
+            android:layout_width="wrap_content"
+            android:layout_height="match_parent"
+            android:layout_alignParentTop="true"
+            android:layout_alignParentEnd="true"
+            android:layout_alignParentBottom="true"
+            android:layout_centerVertical="true"
+            android:layout_marginStart="0dp"
+            android:layout_marginTop="0dp"
+            android:layout_marginBottom="0dp"
+            android:layout_toEndOf="@+id/restart"
+            android:textAlignment="center"
+            android:textColor="@color/colorPrimaryDark"
+            android:textSize="20sp"
+            android:textStyle="bold"
+            android:elegantTextHeight="true"
+            android:gravity="center"
+            />
+
+        <Button
+            android:id="@+id/restart"
+            android:layout_width="175dp"
+            android:layout_height="match_parent"
+            android:layout_alignParentStart="true"
+            android:layout_alignParentTop="true"
+            android:layout_alignParentBottom="true"
+            android:layout_marginTop="0dp"
+            android:layout_marginBottom="0dp"
+            android:backgroundTint="@color/colorPrimaryLighter"
+            android:text="@string/restart"
+            android:textAlignment="center"
+            android:textColor="@color/colorPrimaryDark"
+            android:textSize="20sp"
+            android:textStyle="italic"
+            android:layout_centerVertical="true"
+            />
+
+    </RelativeLayout>
+
 
 </RelativeLayout>
