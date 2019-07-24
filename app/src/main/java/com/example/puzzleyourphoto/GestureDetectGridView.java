@@ -4,6 +4,7 @@ import android.content.Context;
 import android.util.AttributeSet;
 import android.view.GestureDetector;
 import android.view.MotionEvent;
+import android.widget.GridLayout;
 import android.widget.GridView;
 
 public class GestureDetectGridView extends GridView {
@@ -33,7 +34,8 @@ public class GestureDetectGridView extends GridView {
 
 
     private void init(final Context context) {
-        gestureDetector = new GestureDetector(context, new GestureDetector.SimpleOnGestureListener() {
+        gestureDetector = new GestureDetector(context, new GestureDetector.SimpleOnGestureListener()
+        {
             @Override
             public boolean onDown(MotionEvent event) {
                 return true;

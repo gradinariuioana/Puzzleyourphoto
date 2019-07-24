@@ -1,6 +1,8 @@
 package com.example.puzzleyourphoto;
 
+import android.content.Context;
 import android.content.Intent;
+import android.database.Cursor;
 import android.net.Uri;
 import android.os.Bundle;
 
@@ -116,7 +118,7 @@ public class MainActivity extends AppCompatActivity {
 
     //Upload picture
     public void dispatchUploadPictureIntent(){
-        Intent intent = new Intent(Intent.ACTION_PICK,android.provider.MediaStore.Images.Media.EXTERNAL_CONTENT_URI);
+        Intent intent = new Intent(Intent.ACTION_PICK, android.provider.MediaStore.Images.Media.EXTERNAL_CONTENT_URI);
         requestedCode = REQUEST_UPLOAD_PHOTO;
         startActivityForResult(intent, REQUEST_UPLOAD_PHOTO);
     }
