@@ -1,10 +1,5 @@
 package com.example.puzzleyourphoto;
 
-import androidx.annotation.NonNull;
-import androidx.appcompat.app.AppCompatActivity;
-import androidx.appcompat.widget.Toolbar;
-
-import android.app.Activity;
 import android.app.AlertDialog;
 import android.content.Context;
 import android.content.DialogInterface;
@@ -18,12 +13,14 @@ import android.media.ExifInterface;
 import android.net.Uri;
 import android.os.Bundle;
 import android.os.CountDownTimer;
-import android.os.PersistableBundle;
 import android.provider.MediaStore;
 import android.view.View;
 import android.widget.Button;
 import android.widget.TextView;
 import android.widget.Toast;
+
+import androidx.appcompat.app.AppCompatActivity;
+import androidx.appcompat.widget.Toolbar;
 
 import org.jetbrains.annotations.NotNull;
 
@@ -74,7 +71,6 @@ public class GameActivity extends AppCompatActivity {
 
         initLook();
         getIntentInfo();
-        startCounter();
 
         //Create a copy of the context to use in run method
         final Context con = this;
@@ -102,6 +98,7 @@ public class GameActivity extends AppCompatActivity {
                         e.printStackTrace();
                     }
                 }
+                startCounter();
             }
         });
     }
@@ -136,11 +133,11 @@ public class GameActivity extends AppCompatActivity {
     //Get info from intent
     private void getIntentInfo() {
         Intent intent = getIntent();
-
-        currentPhotoPath = intent.getStringExtra("CURRENT_PHOTO_PATH");
         REQUEST_TAKE_PHOTO = intent.getExtras().getInt("REQUEST_TAKE_PHOTO");
         REQUEST_UPLOAD_PHOTO = intent.getExtras().getInt("REQUEST_UPLOAD_PHOTO");
         requestedCode = intent.getExtras().getInt("REQUEST_CODE");
+        if (REQUEST_TAKE_PHOTO == requestedCode)
+            currentPhotoPath = intent.getStringExtra("CURRENT_PHOTO_PATH");
         if (REQUEST_UPLOAD_PHOTO == requestedCode)
             selectedImage = Uri.parse(intent.getStringExtra("URI"));
     }
@@ -355,6 +352,7 @@ public class GameActivity extends AppCompatActivity {
     {
         timeLeftOnTimer = 30000;
         shuffled = false;
+        countDownTimer.cancel();
         gameActivity.recreate();
     }
 
@@ -363,6 +361,14 @@ public class GameActivity extends AppCompatActivity {
         super.onSaveInstanceState(outState);
         outState.putLong(TIME_KEY, timeLeftOnTimer);
         countDownTimer.cancel();
+    }
+
+    @Override
+    public void onBackPressed() {
+        timeLeftOnTimer = 30000;
+        shuffled = false;
+        countDownTimer.cancel();
+        super.onBackPressed();
     }
 }
 

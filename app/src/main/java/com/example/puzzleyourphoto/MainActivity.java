@@ -1,25 +1,20 @@
 package com.example.puzzleyourphoto;
 
-import android.content.Context;
 import android.content.Intent;
-import android.database.Cursor;
 import android.net.Uri;
 import android.os.Bundle;
-
+import android.os.Environment;
+import android.provider.MediaStore;
+import android.view.Menu;
+import android.view.MenuItem;
+import android.view.View;
 
 import androidx.appcompat.app.ActionBarDrawerToggle;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.widget.Toolbar;
 import androidx.core.content.FileProvider;
 import androidx.core.view.GravityCompat;
-import androidx.core.view.ViewCompat;
 import androidx.drawerlayout.widget.DrawerLayout;
-
-import android.os.Environment;
-import android.provider.MediaStore;
-import android.view.View;
-import android.view.Menu;
-import android.view.MenuItem;
 
 import com.getbase.floatingactionbutton.FloatingActionButton;
 import com.getbase.floatingactionbutton.FloatingActionsMenu;
@@ -147,7 +142,8 @@ public class MainActivity extends AppCompatActivity
             intent.putExtra("REQUEST_UPLOAD_PHOTO", REQUEST_UPLOAD_PHOTO);
             intent.putExtra("REQUEST_TAKE_PHOTO", REQUEST_TAKE_PHOTO);
             intent.putExtra("REQUEST_CODE", requestedCode);
-            intent.putExtra("CURRENT_PHOTO_PATH", currentPhotoPath);
+            if (requestCode == REQUEST_TAKE_PHOTO)
+                intent.putExtra("CURRENT_PHOTO_PATH", currentPhotoPath);
             if (requestCode == REQUEST_UPLOAD_PHOTO){
                 intent.putExtra("URI", data.getData().toString());
             }
@@ -155,7 +151,7 @@ public class MainActivity extends AppCompatActivity
         }
     }
 
-    //Menu
+    //Main Menu
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
         // Inflate the menu; this adds items to the action bar if it is present.
@@ -179,6 +175,7 @@ public class MainActivity extends AppCompatActivity
         return super.onOptionsItemSelected(item);
     }
 
+    //Drawer options
     @Override
     public void onBackPressed() {
         DrawerLayout drawer = findViewById(R.id.activityMainLayout);

@@ -4,7 +4,6 @@ import android.content.Context;
 import android.util.AttributeSet;
 import android.view.GestureDetector;
 import android.view.MotionEvent;
-import android.widget.GridLayout;
 import android.widget.GridView;
 
 public class GestureDetectGridView extends GridView {
