@@ -30,4 +30,5 @@ dependencies {
     implementation 'com.getbase:floatingactionbutton:1.10.1'
     implementation 'androidx.legacy:legacy-support-v4:1.0.0'
     implementation 'com.scwang.wave:MultiWaveHeader:1.0.0-alpha-1'
+    implementation 'org.jetbrains:annotations-java5:15.0'
 }

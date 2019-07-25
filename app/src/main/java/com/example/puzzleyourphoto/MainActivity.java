@@ -1,25 +1,24 @@
 package com.example.puzzleyourphoto;
 
-import android.content.Context;
 import android.content.Intent;
-import android.database.Cursor;
 import android.net.Uri;
 import android.os.Bundle;
+import android.os.Environment;
+import android.provider.MediaStore;
+import android.view.Menu;
+import android.view.MenuItem;
+import android.view.View;
 
-
+import androidx.appcompat.app.ActionBarDrawerToggle;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.widget.Toolbar;
 import androidx.core.content.FileProvider;
-import androidx.core.view.ViewCompat;
-
-import android.os.Environment;
-import android.provider.MediaStore;
-import android.view.View;
-import android.view.Menu;
-import android.view.MenuItem;
+import androidx.core.view.GravityCompat;
+import androidx.drawerlayout.widget.DrawerLayout;
 
 import com.getbase.floatingactionbutton.FloatingActionButton;
 import com.getbase.floatingactionbutton.FloatingActionsMenu;
+import com.google.android.material.navigation.NavigationView;
 import com.scwang.wave.MultiWaveHeader;
 
 import java.io.File;
@@ -27,7 +26,8 @@ import java.io.IOException;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 
-public class MainActivity extends AppCompatActivity {
+public class MainActivity extends AppCompatActivity
+        implements NavigationView.OnNavigationItemSelectedListener{
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -52,6 +52,15 @@ public class MainActivity extends AppCompatActivity {
                 dispatchUploadPictureIntent();
             }
         });
+
+        DrawerLayout drawer = findViewById(R.id.activityMainLayout);
+        NavigationView navigationView = findViewById(R.id.nav_view);
+        Toolbar toolbar = findViewById(R.id.toolbar);
+        ActionBarDrawerToggle toggle = new ActionBarDrawerToggle(
+                this, drawer, toolbar, R.string.navigation_drawer_open, R.string.navigation_drawer_close);
+        drawer.addDrawerListener(toggle);
+        toggle.syncState();
+        navigationView.setNavigationItemSelectedListener(this);
     }
 
     private void initLook(){
@@ -133,7 +142,8 @@ public class MainActivity extends AppCompatActivity {
             intent.putExtra("REQUEST_UPLOAD_PHOTO", REQUEST_UPLOAD_PHOTO);
             intent.putExtra("REQUEST_TAKE_PHOTO", REQUEST_TAKE_PHOTO);
             intent.putExtra("REQUEST_CODE", requestedCode);
-            intent.putExtra("CURRENT_PHOTO_PATH", currentPhotoPath);
+            if (requestCode == REQUEST_TAKE_PHOTO)
+                intent.putExtra("CURRENT_PHOTO_PATH", currentPhotoPath);
             if (requestCode == REQUEST_UPLOAD_PHOTO){
                 intent.putExtra("URI", data.getData().toString());
             }
@@ -141,7 +151,7 @@ public class MainActivity extends AppCompatActivity {
         }
     }
 
-    //Menu
+    //Main Menu
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
         // Inflate the menu; this adds items to the action bar if it is present.
@@ -163,5 +173,40 @@ public class MainActivity extends AppCompatActivity {
         }
 
         return super.onOptionsItemSelected(item);
+    }
+
+    //Drawer options
+    @Override
+    public void onBackPressed() {
+        DrawerLayout drawer = findViewById(R.id.activityMainLayout);
+        if (drawer.isDrawerOpen(GravityCompat.START)) {
+            drawer.closeDrawer(GravityCompat.START);
+        } else {
+            super.onBackPressed();
+        }
+    }
+
+    @Override
+    public boolean onNavigationItemSelected(MenuItem item) {
+        // Handle navigation view item clicks here.
+        int id = item.getItemId();
+
+        if (id == R.id.nav_home) {
+            // Handle the camera action
+        } else if (id == R.id.nav_gallery) {
+
+        } else if (id == R.id.nav_slideshow) {
+
+        } else if (id == R.id.nav_tools) {
+
+        } else if (id == R.id.nav_share) {
+
+        } else if (id == R.id.nav_send) {
+
+        }
+
+        DrawerLayout drawer = findViewById(R.id.activityMainLayout);
+        drawer.closeDrawer(GravityCompat.START);
+        return true;
     }
 }

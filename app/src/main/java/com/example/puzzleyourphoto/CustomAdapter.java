@@ -5,7 +5,6 @@ import android.view.ViewGroup;
 import android.widget.AbsListView;
 import android.widget.BaseAdapter;
 import android.widget.Button;
-import android.widget.GridView;
 
 import java.util.ArrayList;
 
@@ -13,7 +12,7 @@ public class CustomAdapter extends BaseAdapter {
     private ArrayList<Button> buttons;
     private int columnWidth, columnHeight;
 
-    public CustomAdapter(ArrayList<Button> buttons, int columnWidth, int columnHeight) {
+    CustomAdapter(ArrayList<Button> buttons, int columnWidth, int columnHeight) {
         this.buttons = buttons;
         this.columnWidth = columnWidth;
         this.columnHeight = columnHeight;
@@ -25,7 +24,7 @@ public class CustomAdapter extends BaseAdapter {
     }
 
     @Override
-    public Object getItem(int position) {return (Object) buttons.get(position);}
+    public Object getItem(int position) {return buttons.get(position);}
 
     @Override
     public long getItemId(int position) {
