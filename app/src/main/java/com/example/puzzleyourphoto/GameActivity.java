@@ -66,6 +66,7 @@ public class GameActivity extends AppCompatActivity {
     private static long defaultTime;
     private static long timeLeftOnTimer = -1;
     public static long counter;
+    private static String mode;
 
 
     @Override
@@ -103,7 +104,7 @@ public class GameActivity extends AppCompatActivity {
                         e.printStackTrace();
                     }
                 }
-                startCounter();
+                startCounter(con);
             }
         });
     }
@@ -166,7 +167,9 @@ public class GameActivity extends AppCompatActivity {
         if (timeLeftOnTimer == -1)
             timeLeftOnTimer = defaultTime;
 
-        if (intent.getExtras().getString("MODE").equals("Zen Mode")) {
+        mode = intent.getExtras().getString("MODE");
+
+        if (mode.equals("Zen Mode")) {
             findViewById(R.id.timer).setVisibility(View.INVISIBLE);
             findViewById(R.id.restart).setLayoutParams(new RelativeLayout.LayoutParams(RelativeLayout.LayoutParams.MATCH_PARENT, RelativeLayout.LayoutParams.MATCH_PARENT));
         }
@@ -179,7 +182,8 @@ public class GameActivity extends AppCompatActivity {
             selectedImage = Uri.parse(intent.getStringExtra("URI"));
     }
 
-    private void startCounter(){
+    private void startCounter(Context con){
+        final Context context = con;
         counter = timeLeftOnTimer / 1000;
         final TextView textView = findViewById(R.id.timer);
         countDownTimer = new CountDownTimer(timeLeftOnTimer, 1000){
@@ -192,9 +196,39 @@ public class GameActivity extends AppCompatActivity {
                     textView.setTextColor(getColor(R.color.Red));
                 }
             }
+            final GameActivity gameActivity = (GameActivity) context;
             public  void onFinish(){
                 textView.setText("Time expired!!");
-            }
+                if (mode.equals("Classic Mode")){
+                    AlertDialog.Builder builder = new AlertDialog.Builder(context);
+                        final AlertDialog myCustomDialog = builder
+                                .setTitle("Oh no! Time has expired!")
+                                .setMessage("Do you want to play another game with the same image?")
+                                .setPositiveButton(android.R.string.yes, new DialogInterface.OnClickListener() {
+
+                                    public void onClick(DialogInterface dialog, int which) {
+                                        restartActivity(gameActivity);
+                                    }
+                                })
+                                .setNegativeButton(android.R.string.no, new DialogInterface.OnClickListener() {
+
+                                    public void onClick(DialogInterface dialog, int which) {
+                                        timeLeftOnTimer = -1;
+                                        shuffled = false;
+                                        countDownTimer.cancel();
+                                        finish();
+                                    }
+                                })
+                                .setIcon(R.drawable.ic_star).create();
+                        myCustomDialog.setOnShowListener( new DialogInterface.OnShowListener() {
+                            @Override
+                            public void onShow(DialogInterface arg0) {
+                                myCustomDialog.getButton(AlertDialog.BUTTON_POSITIVE).setTextColor(context.getColor(R.color.colorPrimaryComplementary));
+                                myCustomDialog.getButton(AlertDialog.BUTTON_NEGATIVE).setTextColor(context.getColor(R.color.colorPrimaryComplementary));
+                            }});
+                        myCustomDialog.show();
+                    }
+                }
         }.start();
     }
 
@@ -339,7 +373,10 @@ public class GameActivity extends AppCompatActivity {
                     .setNegativeButton(android.R.string.no, new DialogInterface.OnClickListener() {
 
                         public void onClick(DialogInterface dialog, int which) {
-                            restartActivity(gameActivity);
+                            timeLeftOnTimer = -1;
+                            shuffled = false;
+                            countDownTimer.cancel();
+                            ((GameActivity) context).finish();
                         }
                     })
                     .setIcon(R.drawable.ic_star).create();
