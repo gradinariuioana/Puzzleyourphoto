@@ -66,7 +66,6 @@ public class GameActivity extends AppCompatActivity {
     private static long defaultTime;
     private static long timeLeftOnTimer = -1;
     public static long counter;
-    private static String TIME_KEY = "TIME_KEY";
 
 
     @Override
@@ -186,7 +185,7 @@ public class GameActivity extends AppCompatActivity {
         countDownTimer = new CountDownTimer(timeLeftOnTimer, 1000){
             public void onTick(long millisUntilFinished){
                 timeLeftOnTimer = millisUntilFinished;
-                textView.setText("Time left: " + String.valueOf(counter));
+                textView.setText("Time left: " + counter);
                 counter = millisUntilFinished / 1000;
                 if (counter <= 8)
                 {
@@ -396,6 +395,7 @@ public class GameActivity extends AppCompatActivity {
     @Override
     public void onSaveInstanceState(Bundle outState) {
         super.onSaveInstanceState(outState);
+        String TIME_KEY = "TIME_KEY";
         outState.putLong(TIME_KEY, timeLeftOnTimer);
         countDownTimer.cancel();
     }
