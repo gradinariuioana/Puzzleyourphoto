@@ -3,35 +3,36 @@
     xmlns:tools="http://schemas.android.com/tools"
     tools:showIn="navigation_view">
 
-    <group android:checkableBehavior="single">
+    <group android:id="@+id/group_mode">
         <item
-            android:id="@+id/nav_home"
+            android:id="@+id/cmode"
             android:icon="@drawable/ic_menu_camera"
-            android:title="@string/menu_home" />
+            android:title="Classic Mode"
+            android:checked="true"
+            />
         <item
-            android:id="@+id/nav_gallery"
+            android:id="@+id/zmode"
             android:icon="@drawable/ic_menu_gallery"
-            android:title="@string/menu_gallery" />
-        <item
-            android:id="@+id/nav_slideshow"
-            android:icon="@drawable/ic_menu_slideshow"
-            android:title="@string/menu_slideshow" />
-        <item
-            android:id="@+id/nav_tools"
-            android:icon="@drawable/ic_menu_manage"
-            android:title="@string/menu_tools" />
+            android:title="Zen Mode"/>
     </group>
 
-    <item android:title="Communicate">
+    <item android:title="Difficulty">
         <menu>
+            <group android:id="@+id/group_difficulty">
             <item
-                android:id="@+id/nav_share"
+                android:id="@+id/ediff"
                 android:icon="@drawable/ic_menu_share"
-                android:title="@string/menu_share" />
+                android:title="Easy"
+                android:checked="true"/>
             <item
-                android:id="@+id/nav_send"
+                android:id="@+id/mdiff"
                 android:icon="@drawable/ic_menu_send"
-                android:title="@string/menu_send" />
+                android:title="Medium"/>
+            <item
+                android:id="@+id/hdiff"
+                android:icon="@drawable/ic_menu_send"
+                android:title="Hard"/>
+            </group>
         </menu>
     </item>
 

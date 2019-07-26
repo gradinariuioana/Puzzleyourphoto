@@ -8,6 +8,7 @@ import android.provider.MediaStore;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
+import android.widget.TextView;
 
 import androidx.appcompat.app.ActionBarDrawerToggle;
 import androidx.appcompat.app.AppCompatActivity;
@@ -76,6 +77,7 @@ public class MainActivity extends AppCompatActivity
         //Plus button
         FloatingActionsMenu pls = findViewById(R.id.plusbtn);
         pls.bringToFront();
+
     }
 
     static String currentPhotoPath;
@@ -142,6 +144,14 @@ public class MainActivity extends AppCompatActivity
             intent.putExtra("REQUEST_UPLOAD_PHOTO", REQUEST_UPLOAD_PHOTO);
             intent.putExtra("REQUEST_TAKE_PHOTO", REQUEST_TAKE_PHOTO);
             intent.putExtra("REQUEST_CODE", requestedCode);
+            if (selectedMode != null)
+                intent.putExtra("MODE", selectedMode.getTitle());
+            else
+                intent.putExtra("MODE", "Classic Mode");
+            if (selectedDifficulty != null)
+                intent.putExtra("DIFFICULTY", selectedDifficulty.getTitle());
+            else
+                intent.putExtra("DIFFICULTY", "Easy");
             if (requestCode == REQUEST_TAKE_PHOTO)
                 intent.putExtra("CURRENT_PHOTO_PATH", currentPhotoPath);
             if (requestCode == REQUEST_UPLOAD_PHOTO){
@@ -176,6 +186,7 @@ public class MainActivity extends AppCompatActivity
     }
 
     //Drawer options
+
     @Override
     public void onBackPressed() {
         DrawerLayout drawer = findViewById(R.id.activityMainLayout);
@@ -186,23 +197,36 @@ public class MainActivity extends AppCompatActivity
         }
     }
 
+    MenuItem selectedMode;
+    MenuItem selectedDifficulty;
+
     @Override
     public boolean onNavigationItemSelected(MenuItem item) {
         // Handle navigation view item clicks here.
-        int id = item.getItemId();
-
-        if (id == R.id.nav_home) {
-            // Handle the camera action
-        } else if (id == R.id.nav_gallery) {
-
-        } else if (id == R.id.nav_slideshow) {
-
-        } else if (id == R.id.nav_tools) {
-
-        } else if (id == R.id.nav_share) {
-
-        } else if (id == R.id.nav_send) {
-
+        if (item.getGroupId() == R.id.group_mode) {
+            if (selectedMode != null) {
+                selectedMode.setChecked(false);
+            }
+            else{
+                NavigationView nv = findViewById(R.id.nav_view);
+                Menu menu = nv.getMenu();
+                selectedMode = menu.findItem(R.id.cmode);
+                selectedMode.setChecked(false);
+            }
+            selectedMode = item;
+            selectedMode.setChecked(true);
+        } else if (item.getGroupId() == R.id.group_difficulty) {
+            if (selectedDifficulty != null) {
+                selectedDifficulty.setChecked(false);
+            }
+            else{
+                NavigationView nv = findViewById(R.id.nav_view);
+                Menu menu = nv.getMenu();
+                selectedDifficulty = menu.findItem(R.id.ediff);
+                selectedDifficulty.setChecked(false);
+            }
+            selectedDifficulty = item;
+            selectedDifficulty.setChecked(true);
         }
 
         DrawerLayout drawer = findViewById(R.id.activityMainLayout);

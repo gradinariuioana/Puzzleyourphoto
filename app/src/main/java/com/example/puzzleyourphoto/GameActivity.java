@@ -14,13 +14,17 @@ import android.net.Uri;
 import android.os.Bundle;
 import android.os.CountDownTimer;
 import android.provider.MediaStore;
+import android.view.Menu;
 import android.view.View;
 import android.widget.Button;
+import android.widget.RelativeLayout;
 import android.widget.TextView;
 import android.widget.Toast;
 
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.widget.Toolbar;
+
+import com.google.android.material.navigation.NavigationView;
 
 import org.jetbrains.annotations.NotNull;
 
@@ -34,8 +38,8 @@ public class GameActivity extends AppCompatActivity {
 
     private static GestureDetectGridView myGridView;
 
-    private static int numberOfColumns = 3;
-    private static final int numberOfSubImages = numberOfColumns * numberOfColumns;
+    private static int numberOfColumns;
+    private static int numberOfSubImages;
 
     public static final String up = "up";
     public static final String down = "down";
@@ -69,8 +73,8 @@ public class GameActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_game);
 
-        initLook();
         getIntentInfo();
+        initLook();
 
         //Create a copy of the context to use in run method
         final Context con = this;
@@ -79,6 +83,7 @@ public class GameActivity extends AppCompatActivity {
         myGridView.post(new Runnable() {
             @Override
             public void run() {
+                myGridView.setNumColumns(numberOfColumns);
                 if (REQUEST_TAKE_PHOTO == requestedCode) {
                     //Resize the image
                     Bitmap reduced = reduceImageSize();
@@ -112,7 +117,6 @@ public class GameActivity extends AppCompatActivity {
 
         myGridView = findViewById(R.id.grid);
         myGridView.setVerticalScrollBarEnabled(false);
-        myGridView.setNumColumns(numberOfColumns);
 
         tileList = new String[numberOfSubImages];
         for (int i = 0; i < numberOfSubImages; i++) {
@@ -136,6 +140,24 @@ public class GameActivity extends AppCompatActivity {
         REQUEST_TAKE_PHOTO = intent.getExtras().getInt("REQUEST_TAKE_PHOTO");
         REQUEST_UPLOAD_PHOTO = intent.getExtras().getInt("REQUEST_UPLOAD_PHOTO");
         requestedCode = intent.getExtras().getInt("REQUEST_CODE");
+        System.out.println(intent.getExtras().getString("DIFFICULTY"));
+        System.out.println(intent.getExtras().getString("MODE"));
+        String difficulty = intent.getExtras().getString("DIFFICULTY");
+        if (difficulty.equals("Easy")) {
+            numberOfColumns = 3;
+        }
+        else if (difficulty.equals("Medium"))
+            numberOfColumns = 5;
+        else
+            numberOfColumns = 7;
+
+        if (intent.getExtras().getString("MODE").equals("Zen Mode")) {
+            findViewById(R.id.timer).setVisibility(View.INVISIBLE);
+            findViewById(R.id.restart).setLayoutParams(new RelativeLayout.LayoutParams(RelativeLayout.LayoutParams.MATCH_PARENT, RelativeLayout.LayoutParams.MATCH_PARENT));
+        }
+
+        numberOfSubImages = numberOfColumns * numberOfColumns;
+
         if (REQUEST_TAKE_PHOTO == requestedCode)
             currentPhotoPath = intent.getStringExtra("CURRENT_PHOTO_PATH");
         if (REQUEST_UPLOAD_PHOTO == requestedCode)
@@ -203,7 +225,6 @@ public class GameActivity extends AppCompatActivity {
                 orientation = cur.getInt(cur.getColumnIndex(orientationColumn[0]));
             }
         }
-        System.out.println(orientation);
         Matrix matrix = new Matrix();
         switch (orientation) {
             //Take cases
