@@ -6,32 +6,32 @@
     <group android:id="@+id/group_mode">
         <item
             android:id="@+id/cmode"
-            android:icon="@drawable/ic_menu_camera"
-            android:title="Classic Mode"
+            android:icon="@drawable/ic_timer"
+            android:title="@string/classic_mode"
             android:checked="true"
             />
         <item
             android:id="@+id/zmode"
-            android:icon="@drawable/ic_menu_gallery"
-            android:title="Zen Mode"/>
+            android:icon="@drawable/ic_timer_off"
+            android:title="@string/zen_mode"/>
     </group>
 
-    <item android:title="Difficulty">
+    <item android:title="@string/difficulty">
         <menu>
             <group android:id="@+id/group_difficulty">
             <item
                 android:id="@+id/ediff"
-                android:icon="@drawable/ic_menu_share"
-                android:title="Easy"
+                android:icon="@drawable/ic_1star"
+                android:title="@string/easy"
                 android:checked="true"/>
             <item
                 android:id="@+id/mdiff"
-                android:icon="@drawable/ic_menu_send"
-                android:title="Medium"/>
+                android:icon="@drawable/ic_2star"
+                android:title="@string/medium"/>
             <item
                 android:id="@+id/hdiff"
-                android:icon="@drawable/ic_menu_send"
-                android:title="Hard"/>
+                android:icon="@drawable/ic_3star"
+                android:title="@string/hard"/>
             </group>
         </menu>
     </item>

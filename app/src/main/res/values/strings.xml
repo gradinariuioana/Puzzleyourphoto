@@ -3,12 +3,17 @@
     <string name="action_settings">Settings</string>
     <string name="desc">Transform your photo into a beautiful puzzle! To play click the plus button and take or upload a photo.</string>
     <string name="restart">Restart</string>
-    <string name="title_activity_main2">Main2Activity</string>
     <string name="navigation_drawer_open">Open navigation drawer</string>
     <string name="navigation_drawer_close">Close navigation drawer</string>
     <string name="nav_header_title">Android Studio</string>
     <string name="nav_header_subtitle">android.studio@android.com</string>
     <string name="nav_header_desc">Navigation header</string>
+    <string name="classic_mode">Classic Mode</string>
+    <string name="zen_mode">Zen Mode</string>
+    <string name="easy">Easy</string>
+    <string name="medium">Medium</string>
+    <string name="hard">Hard</string>
+    <string name="difficulty">Difficulty</string>
 
     <string name="menu_home">Home</string>
     <string name="menu_gallery">Gallery</string>

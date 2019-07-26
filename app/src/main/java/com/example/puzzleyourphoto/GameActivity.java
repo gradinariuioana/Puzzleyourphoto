@@ -63,9 +63,9 @@ public class GameActivity extends AppCompatActivity {
     private static String[] shuffledTileList;
 
     private static CountDownTimer countDownTimer;
-    private static long timeLeftOnTimer = 30000;
+    private static long defaultTime;
+    private static long timeLeftOnTimer = -1;
     public static long counter;
-    private static String TIME_KEY = "TIME_KEY";
 
 
     @Override
@@ -132,24 +132,39 @@ public class GameActivity extends AppCompatActivity {
                 restartActivity(gameActivity);
             }
         });
+
     }
 
     //Get info from intent
     private void getIntentInfo() {
         Intent intent = getIntent();
+        String difficulty;
+        try{
         REQUEST_TAKE_PHOTO = intent.getExtras().getInt("REQUEST_TAKE_PHOTO");
         REQUEST_UPLOAD_PHOTO = intent.getExtras().getInt("REQUEST_UPLOAD_PHOTO");
         requestedCode = intent.getExtras().getInt("REQUEST_CODE");
         System.out.println(intent.getExtras().getString("DIFFICULTY"));
         System.out.println(intent.getExtras().getString("MODE"));
-        String difficulty = intent.getExtras().getString("DIFFICULTY");
-        if (difficulty.equals("Easy")) {
-            numberOfColumns = 3;
+        difficulty = intent.getExtras().getString("DIFFICULTY");
+            if (difficulty.equals("Easy")) {
+                numberOfColumns = 3;
+                defaultTime = 30000;
+            }
+            else if (difficulty.equals("Medium")) {
+                numberOfColumns = 5;
+                defaultTime = 50000;
+            }
+            else{
+                numberOfColumns = 7;
+                defaultTime = 70000;
+            }
         }
-        else if (difficulty.equals("Medium"))
-            numberOfColumns = 5;
-        else
-            numberOfColumns = 7;
+        catch (Exception e){
+            e.printStackTrace();
+        }
+
+        if (timeLeftOnTimer == -1)
+            timeLeftOnTimer = defaultTime;
 
         if (intent.getExtras().getString("MODE").equals("Zen Mode")) {
             findViewById(R.id.timer).setVisibility(View.INVISIBLE);
@@ -170,7 +185,7 @@ public class GameActivity extends AppCompatActivity {
         countDownTimer = new CountDownTimer(timeLeftOnTimer, 1000){
             public void onTick(long millisUntilFinished){
                 timeLeftOnTimer = millisUntilFinished;
-                textView.setText("Time left: " + String.valueOf(counter));
+                textView.setText("Time left: " + counter);
                 counter = millisUntilFinished / 1000;
                 if (counter <= 8)
                 {
@@ -371,7 +386,7 @@ public class GameActivity extends AppCompatActivity {
 
     public static void restartActivity(GameActivity gameActivity)
     {
-        timeLeftOnTimer = 30000;
+        timeLeftOnTimer = defaultTime;
         shuffled = false;
         countDownTimer.cancel();
         gameActivity.recreate();
@@ -380,13 +395,14 @@ public class GameActivity extends AppCompatActivity {
     @Override
     public void onSaveInstanceState(Bundle outState) {
         super.onSaveInstanceState(outState);
+        String TIME_KEY = "TIME_KEY";
         outState.putLong(TIME_KEY, timeLeftOnTimer);
         countDownTimer.cancel();
     }
 
     @Override
     public void onBackPressed() {
-        timeLeftOnTimer = 30000;
+        timeLeftOnTimer = -1;
         shuffled = false;
         countDownTimer.cancel();
         super.onBackPressed();
