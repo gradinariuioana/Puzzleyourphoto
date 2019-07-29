@@ -11,8 +11,8 @@
         android:id="@+id/toolbar"
         layout="@layout/toolbar" />
 
-    <com.example.puzzleyourphoto.GestureDetectGridView
-        android:id="@+id/grid"
+    <ViewFlipper
+        android:id="@+id/content"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_below="@+id/toolbar"
@@ -25,13 +25,28 @@
         android:layout_marginBottom="130dp"
         android:adjustViewBounds="true"
         android:stretchMode="columnWidth"
-        tools:context="com.example.puzzleyourphoto.GameActivity"></com.example.puzzleyourphoto.GestureDetectGridView>
+        tools:context="com.example.puzzleyourphoto.GameActivity">
+
+        <include
+            android:id="@+id/grid_gesture_detector"
+            layout="@layout/grid_layout"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"/>
+
+        <include
+            android:id="@+id/simple_grid"
+            layout="@layout/grid_simple_layout"
+            android:layout_height="match_parent"
+            android:layout_width="match_parent"/>
+
+
+    </ViewFlipper>
 
     <RelativeLayout
         android:id="@+id/actions"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_below="@id/grid"
+        android:layout_below="@id/content"
         android:layout_alignParentStart="true"
         android:layout_alignParentEnd="true"
         android:layout_alignParentBottom="true"

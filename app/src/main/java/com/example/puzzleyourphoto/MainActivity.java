@@ -8,7 +8,6 @@ import android.provider.MediaStore;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
-import android.widget.TextView;
 
 import androidx.appcompat.app.ActionBarDrawerToggle;
 import androidx.appcompat.app.AppCompatActivity;
@@ -81,10 +80,9 @@ public class MainActivity extends AppCompatActivity
     }
 
     static String currentPhotoPath;
-    static final int REQUEST_TAKE_PHOTO = 1;
-    static final int REQUEST_UPLOAD_PHOTO = 2;
-    static int requestedCode;
-    File photoFile;
+    private static final int REQUEST_TAKE_PHOTO = 1;
+    private static final int REQUEST_UPLOAD_PHOTO = 2;
+    private static int requestedCode;
 
     //Take Picture
     private void dispatchTakePictureIntent() {
@@ -92,7 +90,7 @@ public class MainActivity extends AppCompatActivity
         // Ensure that there's a camera activity to handle the intent
         if (takePictureIntent.resolveActivity(getPackageManager()) != null) {
             // Create the File where the photo should go
-            photoFile = null;
+            File photoFile = null;
             try {
                 photoFile = createImageFile();
             } catch (IOException ex) {
@@ -128,7 +126,7 @@ public class MainActivity extends AppCompatActivity
     }
 
     //Upload picture
-    public void dispatchUploadPictureIntent(){
+    private void dispatchUploadPictureIntent(){
         Intent intent = new Intent(Intent.ACTION_PICK, android.provider.MediaStore.Images.Media.EXTERNAL_CONTENT_URI);
         requestedCode = REQUEST_UPLOAD_PHOTO;
         startActivityForResult(intent, REQUEST_UPLOAD_PHOTO);
@@ -152,6 +150,10 @@ public class MainActivity extends AppCompatActivity
                 intent.putExtra("DIFFICULTY", selectedDifficulty.getTitle());
             else
                 intent.putExtra("DIFFICULTY", "Easy");
+            if (selectedType != null)
+                intent.putExtra("TYPE", selectedType.getTitle());
+            else
+                intent.putExtra("TYPE", "Swapping tiles");
             if (requestCode == REQUEST_TAKE_PHOTO)
                 intent.putExtra("CURRENT_PHOTO_PATH", currentPhotoPath);
             if (requestCode == REQUEST_UPLOAD_PHOTO){
@@ -197,8 +199,9 @@ public class MainActivity extends AppCompatActivity
         }
     }
 
-    MenuItem selectedMode;
-    MenuItem selectedDifficulty;
+    private MenuItem selectedMode;
+    private MenuItem selectedDifficulty;
+    private MenuItem selectedType;
 
     @Override
     public boolean onNavigationItemSelected(MenuItem item) {
@@ -227,6 +230,18 @@ public class MainActivity extends AppCompatActivity
             }
             selectedDifficulty = item;
             selectedDifficulty.setChecked(true);
+        }else if (item.getGroupId() == R.id.group_type) {
+            if (selectedType != null) {
+                selectedType.setChecked(false);
+            }
+            else{
+                NavigationView nv = findViewById(R.id.nav_view);
+                Menu menu = nv.getMenu();
+                selectedType = menu.findItem(R.id.swap);
+                selectedType.setChecked(false);
+            }
+            selectedType = item;
+            selectedType.setChecked(true);
         }
 
         DrawerLayout drawer = findViewById(R.id.activityMainLayout);
