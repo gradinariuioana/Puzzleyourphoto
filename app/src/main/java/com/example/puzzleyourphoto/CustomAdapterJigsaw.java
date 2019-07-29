@@ -4,27 +4,27 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.AbsListView;
 import android.widget.BaseAdapter;
-import android.widget.Button;
+import android.widget.ImageView;
 
 import java.util.ArrayList;
 
-public class CustomAdapter extends BaseAdapter {
-    private ArrayList<Button> buttons;
-    private int columnWidth, columnHeight;
+class CustomAdapterJigsaw extends BaseAdapter {
+    private final ArrayList<ImageView> imageViews;
+    private final int columnWidth, columnHeight;
 
-    CustomAdapter(ArrayList<Button> buttons, int columnWidth, int columnHeight) {
-        this.buttons = buttons;
+    CustomAdapterJigsaw(ArrayList<ImageView> imageViews, int columnWidth, int columnHeight) {
+        this.imageViews = imageViews;
         this.columnWidth = columnWidth;
         this.columnHeight = columnHeight;
     }
 
     @Override
     public int getCount() {
-        return buttons.size();
+        return imageViews.size();
     }
 
     @Override
-    public Object getItem(int position) {return buttons.get(position);}
+    public Object getItem(int position) {return imageViews.get(position);}
 
     @Override
     public long getItemId(int position) {
@@ -33,20 +33,20 @@ public class CustomAdapter extends BaseAdapter {
 
     @Override
     public View getView(int position, View convertView, ViewGroup parent) {
-        Button button;
+        ImageView imageView;
 
         //If I do not have what to reuse I take the button from the list
         if (convertView == null) {
-            button = buttons.get(position);
+            imageView = imageViews.get(position);
         }
         //I reuse the convertView
         else {
-            button = (Button) convertView;
+            imageView = (ImageView) convertView;
         }
 
         //Provide a place to hold the view type
-        button.setLayoutParams(new AbsListView.LayoutParams(columnWidth, columnHeight));
+        imageView.setLayoutParams(new AbsListView.LayoutParams(columnWidth, columnHeight));
 
-        return button;
+        return imageView;
     }
 }
