@@ -33,11 +33,23 @@
             android:layout_width="match_parent"
             android:layout_height="match_parent"/>
 
+        <FrameLayout
+            android:layout_width="match_parent"
+            android:layout_height="match_parent">
+
         <include
             android:id="@+id/simple_grid"
             layout="@layout/grid_simple_layout"
             android:layout_height="match_parent"
             android:layout_width="match_parent"/>
+
+            <RelativeLayout
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:id="@+id/relative"
+                ></RelativeLayout>
+
+        </FrameLayout>
 
 
     </ViewFlipper>

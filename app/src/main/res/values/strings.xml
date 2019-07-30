@@ -14,11 +14,7 @@
     <string name="medium">Medium</string>
     <string name="hard">Hard</string>
     <string name="difficulty">Difficulty</string>
+    <string name="expired_time">Time expired!</string>
+    <string name="time_left">Time Left: %1$s</string>
 
-    <string name="menu_home">Home</string>
-    <string name="menu_gallery">Gallery</string>
-    <string name="menu_slideshow">Slideshow</string>
-    <string name="menu_tools">Tools</string>
-    <string name="menu_share">Share</string>
-    <string name="menu_send">Send</string>
 </resources>

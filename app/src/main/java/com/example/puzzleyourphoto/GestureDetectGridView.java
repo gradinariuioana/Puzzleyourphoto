@@ -53,11 +53,11 @@ public class GestureDetectGridView extends GridView {
                     }
                     //e1 above e2
                     if (e1.getY() - e2.getY() > SWIPE_MIN_DISTANCE) {
-                        GameActivity.moveTiles(context, GameActivity.up, position);
+                        SwapGame.moveTiles(context, SwapGame.up, position);
                     }
                     //e2 above e1
                     else if (e2.getY() - e1.getY() > SWIPE_MIN_DISTANCE) {
-                        GameActivity.moveTiles(context, GameActivity.down, position);
+                        SwapGame.moveTiles(context, SwapGame.down, position);
                     }
                 }
                 else {
@@ -66,11 +66,11 @@ public class GestureDetectGridView extends GridView {
                     }
                     //e1 to the right of e2
                     if (e1.getX() - e2.getX() > SWIPE_MIN_DISTANCE) {
-                        GameActivity.moveTiles(context, GameActivity.left, position);
+                        SwapGame.moveTiles(context, SwapGame.left, position);
                     }
                     //e2 to the right of e1
                     else if (e2.getX() - e1.getX() > SWIPE_MIN_DISTANCE) {
-                        GameActivity.moveTiles(context, GameActivity.right, position);
+                        SwapGame.moveTiles(context, SwapGame.right, position);
                     }
                 }
                 return super.onFling(e1, e2, velocityX, velocityY);
