@@ -5,6 +5,8 @@
     android:layout_height="match_parent"
     android:fitsSystemWindows="true"
     tools:context=".GameActivity"
+    android:clipChildren="false"
+    android:clipToPadding="false"
     android:id="@+id/activityGameLayout">
 
     <include
@@ -25,6 +27,8 @@
         android:layout_marginBottom="130dp"
         android:adjustViewBounds="true"
         android:stretchMode="columnWidth"
+        android:clipChildren="false"
+        android:clipToPadding="false"
         tools:context="com.example.puzzleyourphoto.GameActivity">
 
         <include
@@ -33,24 +37,13 @@
             android:layout_width="match_parent"
             android:layout_height="match_parent"/>
 
-        <FrameLayout
+        <RelativeLayout
             android:layout_width="match_parent"
-            android:layout_height="match_parent">
-
-        <include
-            android:id="@+id/simple_grid"
-            layout="@layout/grid_simple_layout"
             android:layout_height="match_parent"
-            android:layout_width="match_parent"/>
-
-            <RelativeLayout
-                android:layout_width="match_parent"
-                android:layout_height="match_parent"
-                android:id="@+id/relative"
-                ></RelativeLayout>
-
-        </FrameLayout>
-
+            android:id="@+id/relative"
+            android:clipChildren="false"
+            android:clipToPadding="false"
+            />
 
     </ViewFlipper>
 

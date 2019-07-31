@@ -27,11 +27,10 @@ import androidx.appcompat.widget.Toolbar;
 import java.io.IOException;
 import java.util.Arrays;
 import java.util.Collections;
-import java.util.List;
 
 public class GameActivity extends AppCompatActivity {
 
-    private static GridView myGridView;
+    private View myView;
     private static Game myGame;
 
     private static int numberOfColumns;
@@ -71,12 +70,12 @@ public class GameActivity extends AppCompatActivity {
         //Create a copy of the context to use in run method
         final Context con = this;
 
-        //To be able to measure the grid view after it is drawn -> add these actions to the end of the running queue
-        myGridView.post(new Runnable() {
+
+        //To be able to measure the grid view after it is drawn -> add these actions to the end of the running query
+        myView.post(new Runnable() {
             @Override
             public void run() {
                 Bitmap bitmap = null;
-                myGridView.setNumColumns(numberOfColumns);
                 if (REQUEST_TAKE_PHOTO == requestedCode) {
                     bitmap = reduceImageSize();
                 }
@@ -91,6 +90,8 @@ public class GameActivity extends AppCompatActivity {
                 Bitmap scaledBitmap = scaleBitmap(rotatedBitmap);
                 if (type.equals("Swapping tiles"))
                 {
+                    myView.setVerticalScrollBarEnabled(false);
+                    ((GridView)myView).setNumColumns(numberOfColumns);
                     myGame = new SwapGame(numberOfColumns);
                     tileList = myGame.getTileList();
                     if (!shuffled) {
@@ -98,20 +99,18 @@ public class GameActivity extends AppCompatActivity {
                         shuffledTileList = tileList;
                         shuffled = true;
                     }
-                    else tileList = shuffledTileList;
+                    else
+                        tileList = shuffledTileList;
                     myGame.setTileList(tileList);
                 }
                 else
                 {
                     myGame = new JigsawGame(numberOfColumns);
                 }
-
-                myGame.splitImage(scaledBitmap);
+                myGame.splitImage(scaledBitmap, con);
                 pieceHeight = myGame.getPieceHeight();
                 pieceWidth = myGame.getPieceWidth();
-
                 display(con);
-
                 startCounter(con);
             }
         });
@@ -124,8 +123,6 @@ public class GameActivity extends AppCompatActivity {
         Toolbar toolbar = findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
 
-        myGridView.setVerticalScrollBarEnabled(false);
-
         final GameActivity gameActivity = this;
 
         Button restart = findViewById(R.id.restart);
@@ -135,6 +132,15 @@ public class GameActivity extends AppCompatActivity {
                 restartActivity(gameActivity);
             }
         });
+
+        ViewFlipper viewFlipper = findViewById(R.id.content);
+        if (type.equals("Swapping tiles")) {
+            viewFlipper.setDisplayedChild(0);
+            myView = findViewById(R.id.grid_gesture_detector);
+        }else {
+            viewFlipper.setDisplayedChild(1);
+            myView = findViewById(R.id.relative);
+        }
 
     }
 
@@ -146,15 +152,7 @@ public class GameActivity extends AppCompatActivity {
             REQUEST_UPLOAD_PHOTO = intent.getExtras().getInt("REQUEST_UPLOAD_PHOTO");
             requestedCode = intent.getExtras().getInt("REQUEST_CODE");
             type = intent.getExtras().getString("TYPE");
-            System.out.println(type);
-            ViewFlipper viewFlipper = findViewById(R.id.content);
-            if (type.equals("Swapping tiles")) {
-                viewFlipper.setDisplayedChild(0);
-                myGridView = findViewById(R.id.grid_gesture_detector);
-            }else {
-                viewFlipper.setDisplayedChild(1);
-                myGridView = findViewById(R.id.simple_grid);
-            }
+
 
             difficulty = intent.getExtras().getString("DIFFICULTY");
             if (difficulty.equals("Easy")) {
@@ -242,8 +240,8 @@ public class GameActivity extends AppCompatActivity {
 
     //Reduce image size to be able to work with it
     private Bitmap reduceImageSize() {
-        targetH = myGridView.getHeight();
-        targetW = myGridView.getWidth();
+        targetH = myView.getHeight();
+        targetW = myView.getWidth();
 
         BitmapFactory.Options bmOptions = new BitmapFactory.Options();
         bmOptions.inJustDecodeBounds = true;
@@ -271,8 +269,8 @@ public class GameActivity extends AppCompatActivity {
             }
             orientation = exifInterface != null ? exifInterface.getAttributeInt(ExifInterface.TAG_ORIENTATION, ExifInterface.ORIENTATION_UNDEFINED) : 0;
         } else {
-            targetH = myGridView.getHeight();
-            targetW = myGridView.getWidth();
+            targetH = myView.getHeight();
+            targetW = myView.getWidth();
             String[] orientationColumn = {MediaStore.Images.Media.ORIENTATION};
             Cursor cur = getApplicationContext().getContentResolver().query(selectedImage, orientationColumn, null, null, null);
             orientation = -1;
@@ -313,14 +311,13 @@ public class GameActivity extends AppCompatActivity {
         return Bitmap.createScaledBitmap(bitmap, targetW, targetH, true);
     }
 
-    static void display(Context context){
+    void display(Context context){
         if (type.equals("Swapping tiles")){
             ((SwapGame)myGame).prepareForDisplay(context);
-            myGridView.setAdapter(new CustomAdapterSwap(((SwapGame)myGame).getButtons(), pieceWidth, pieceHeight));
+            ((GridView)myView).setAdapter(new CustomAdapterSwap(((SwapGame)myGame).getButtons(), pieceWidth, pieceHeight));
         }
         else {
-            JigsawGame.prepareForDisplay(context);
-            myGridView.setAdapter(new CustomAdapterJigsaw(((JigsawGame) myGame).getImageViews(), pieceWidth, pieceHeight));
+            JigsawGame.prepareForDisplay((RelativeLayout)myView, context);
         }
 
     }

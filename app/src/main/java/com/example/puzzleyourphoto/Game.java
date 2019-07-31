@@ -1,5 +1,6 @@
 package com.example.puzzleyourphoto;
 
+import android.content.Context;
 import android.graphics.Bitmap;
 
 import org.jetbrains.annotations.NotNull;
@@ -11,7 +12,7 @@ abstract class Game {
     static int numberOfColumns;
     static List<Bitmap> imageParts;
     static int pieceHeight, pieceWidth;
-    static int numberOfSubImages;
+    private static int numberOfSubImages;
     static String[] tileList;
 
     Game(int numberOfColumns){
@@ -23,7 +24,7 @@ abstract class Game {
         }
     }
 
-    void splitImage(@NotNull Bitmap bitmap) {
+    void splitImage(@NotNull Bitmap bitmap, Context context) {
     }
 
     int getPieceWidth() {

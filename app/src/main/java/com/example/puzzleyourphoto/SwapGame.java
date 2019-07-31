@@ -22,7 +22,8 @@ class SwapGame extends Game {
         super(numberOfColumns);
     }
 
-    void splitImage(@NotNull Bitmap bitmap) {
+    @Override
+    void splitImage(@NotNull Bitmap bitmap, Context context) {
         imageParts = new ArrayList<>();
         int yCoord = 0;
         pieceHeight = bitmap.getHeight() / numberOfColumns;
@@ -52,12 +53,12 @@ class SwapGame extends Game {
     }
 
 
-    //Swap two tiles in the tileList -> swap two images backgrounds -> the prepareForDisplay to see the changes
+    //Swap two tiles in the tileList -> swap two images backgrounds -> the addImagesToGrid to see the changes
     private static void swapTiles(Context context, int currentPosition, int positionsToSwapWith) {
         String newPosition = tileList[currentPosition + positionsToSwapWith];
         tileList[currentPosition + positionsToSwapWith] = tileList[currentPosition];
         tileList[currentPosition] = newPosition;
-        GameActivity.display(context);
+        ((GameActivity)context).display(context);
     }
 
     static void moveTiles(Context context, @org.jetbrains.annotations.NotNull String direction, int position) {
