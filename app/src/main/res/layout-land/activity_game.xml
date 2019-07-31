@@ -21,8 +21,8 @@
         android:layout_alignParentBottom="true"
         android:layout_marginStart="30dp"
         android:layout_marginTop="30dp"
-        android:layout_marginEnd="30dp"
-        android:layout_marginBottom="130dp"
+        android:layout_marginEnd="130dp"
+        android:layout_marginBottom="30dp"
         android:adjustViewBounds="true"
         android:stretchMode="columnWidth"
         tools:context="com.example.puzzleyourphoto.GameActivity">
@@ -33,11 +33,11 @@
             android:layout_width="match_parent"
             android:layout_height="match_parent"/>
 
-        <include
-            android:id="@+id/simple_grid"
-            layout="@layout/grid_simple_layout"
+        <RelativeLayout
+            android:layout_width="match_parent"
             android:layout_height="match_parent"
-            android:layout_width="match_parent"/>
+            android:id="@+id/relative"
+            />
 
 
     </ViewFlipper>

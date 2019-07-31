@@ -40,14 +40,14 @@
         <menu>
             <group android:id="@+id/group_type">
                 <item
-                    android:id="@+id/swap"
-                    android:icon="@drawable/ic_swap"
-                    android:title="Swapping tiles"
-                    android:checked="true"/>
-                <item
                     android:id="@+id/jigsaw"
                     android:icon="@drawable/ic_puzzle_piece"
-                    android:title="Jigsaw puzzle"/>
+                    android:title="Jigsaw puzzle"
+                    android:checked="true"/>
+                <item
+                    android:id="@+id/swap"
+                    android:icon="@drawable/ic_swap"
+                    android:title="Swapping tiles" />
             </group>
         </menu>
     </item>

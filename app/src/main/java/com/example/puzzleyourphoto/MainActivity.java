@@ -21,10 +21,13 @@ import com.getbase.floatingactionbutton.FloatingActionsMenu;
 import com.google.android.material.navigation.NavigationView;
 import com.scwang.wave.MultiWaveHeader;
 
+import org.jetbrains.annotations.NotNull;
+
 import java.io.File;
 import java.io.IOException;
 import java.text.SimpleDateFormat;
 import java.util.Date;
+import java.util.Objects;
 
 public class MainActivity extends AppCompatActivity
         implements NavigationView.OnNavigationItemSelectedListener{
@@ -153,11 +156,11 @@ public class MainActivity extends AppCompatActivity
             if (selectedType != null)
                 intent.putExtra("TYPE", selectedType.getTitle());
             else
-                intent.putExtra("TYPE", "Swapping tiles");
+                intent.putExtra("TYPE", "Jigsaw puzzle");
             if (requestCode == REQUEST_TAKE_PHOTO)
                 intent.putExtra("CURRENT_PHOTO_PATH", currentPhotoPath);
             if (requestCode == REQUEST_UPLOAD_PHOTO){
-                intent.putExtra("URI", data.getData().toString());
+                intent.putExtra("URI", Objects.requireNonNull(data.getData()).toString());
             }
             startActivity(intent);
         }
@@ -173,7 +176,7 @@ public class MainActivity extends AppCompatActivity
 
 
     @Override
-    public boolean onOptionsItemSelected(MenuItem item) {
+    public boolean onOptionsItemSelected(@NotNull MenuItem item) {
         // Handle action bar item clicks here. The action bar will
         // automatically handle clicks on the Home/Up button, so long
         // as you specify a parent activity in AndroidManifest.xml.
@@ -204,7 +207,7 @@ public class MainActivity extends AppCompatActivity
     private MenuItem selectedType;
 
     @Override
-    public boolean onNavigationItemSelected(MenuItem item) {
+    public boolean onNavigationItemSelected(@NotNull MenuItem item) {
         // Handle navigation view item clicks here.
         if (item.getGroupId() == R.id.group_mode) {
             if (selectedMode != null) {
@@ -237,7 +240,7 @@ public class MainActivity extends AppCompatActivity
             else{
                 NavigationView nv = findViewById(R.id.nav_view);
                 Menu menu = nv.getMenu();
-                selectedType = menu.findItem(R.id.swap);
+                selectedType = menu.findItem(R.id.jigsaw);
                 selectedType.setChecked(false);
             }
             selectedType = item;
