@@ -156,7 +156,7 @@ public class MainActivity extends AppCompatActivity
             if (selectedType != null)
                 intent.putExtra("TYPE", selectedType.getTitle());
             else
-                intent.putExtra("TYPE", "Swapping tiles");
+                intent.putExtra("TYPE", "Jigsaw puzzle");
             if (requestCode == REQUEST_TAKE_PHOTO)
                 intent.putExtra("CURRENT_PHOTO_PATH", currentPhotoPath);
             if (requestCode == REQUEST_UPLOAD_PHOTO){
@@ -240,7 +240,7 @@ public class MainActivity extends AppCompatActivity
             else{
                 NavigationView nv = findViewById(R.id.nav_view);
                 Menu menu = nv.getMenu();
-                selectedType = menu.findItem(R.id.swap);
+                selectedType = menu.findItem(R.id.jigsaw);
                 selectedType.setChecked(false);
             }
             selectedType = item;
