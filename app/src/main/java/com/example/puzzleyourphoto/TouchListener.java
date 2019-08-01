@@ -8,11 +8,13 @@ import android.view.ViewGroup;
 import android.view.WindowManager;
 import android.widget.RelativeLayout;
 
- class TouchListener implements View.OnTouchListener {
+import java.util.Objects;
+
+class TouchListener implements View.OnTouchListener {
     private float xDelta;
     private float yDelta;
-    private Context context;
-    final GameActivity gameActivity;
+    private final Context context;
+    private final GameActivity gameActivity;
 
     TouchListener(Context context){
         this.context = context;
@@ -22,7 +24,7 @@ import android.widget.RelativeLayout;
     @Override
     public boolean onTouch(View view, MotionEvent motionEvent) {
         DisplayMetrics metrices = new DisplayMetrics();
-        ((WindowManager) context.getSystemService(Context.WINDOW_SERVICE)).getDefaultDisplay().getMetrics(metrices);
+        ((WindowManager) Objects.requireNonNull(context.getSystemService(Context.WINDOW_SERVICE))).getDefaultDisplay().getMetrics(metrices);
         int windowWidth = metrices.widthPixels;
         int windowHeight = metrices.heightPixels;
         float x = motionEvent.getRawX();
@@ -65,7 +67,7 @@ import android.widget.RelativeLayout;
         return true;
     }
 
-     public static void sendViewToBack(final View child) {
+     private static void sendViewToBack(final View child) {
          final ViewGroup parent = (ViewGroup)child.getParent();
          if (null != parent) {
              parent.removeView(child);

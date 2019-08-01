@@ -27,6 +27,7 @@ import androidx.appcompat.widget.Toolbar;
 import java.io.IOException;
 import java.util.Arrays;
 import java.util.Collections;
+import java.util.Objects;
 
 public class GameActivity extends AppCompatActivity {
 
@@ -78,8 +79,7 @@ public class GameActivity extends AppCompatActivity {
                 Bitmap bitmap = null;
                 if (REQUEST_TAKE_PHOTO == requestedCode) {
                     bitmap = reduceImageSize();
-                }
-                else if (REQUEST_UPLOAD_PHOTO == requestedCode) {
+                } else if (REQUEST_UPLOAD_PHOTO == requestedCode) {
                     try {
                         bitmap = MediaStore.Images.Media.getBitmap(con.getContentResolver(), selectedImage);
                     } catch (IOException e) {
@@ -88,23 +88,19 @@ public class GameActivity extends AppCompatActivity {
                 }
                 Bitmap rotatedBitmap = rotateImage(bitmap);
                 Bitmap scaledBitmap = scaleBitmap(rotatedBitmap);
-                if (type.equals("Swapping tiles"))
-                {
+                if (type.equals("Swapping tiles")) {
                     myView.setVerticalScrollBarEnabled(false);
-                    ((GridView)myView).setNumColumns(numberOfColumns);
+                    ((GridView) myView).setNumColumns(numberOfColumns);
                     myGame = new SwapGame(numberOfColumns);
                     tileList = myGame.getTileList();
                     if (!shuffled) {
                         Collections.shuffle(Arrays.asList(tileList));
                         shuffledTileList = tileList;
                         shuffled = true;
-                    }
-                    else
+                    } else
                         tileList = shuffledTileList;
                     myGame.setTileList(tileList);
-                }
-                else
-                {
+                } else {
                     myGame = new JigsawGame(numberOfColumns);
                 }
                 myGame.splitImage(scaledBitmap, con);
@@ -148,14 +144,14 @@ public class GameActivity extends AppCompatActivity {
         Intent intent = getIntent();
         String difficulty;
         try{
-            REQUEST_TAKE_PHOTO = intent.getExtras().getInt("REQUEST_TAKE_PHOTO");
+            REQUEST_TAKE_PHOTO = Objects.requireNonNull(intent.getExtras()).getInt("REQUEST_TAKE_PHOTO");
             REQUEST_UPLOAD_PHOTO = intent.getExtras().getInt("REQUEST_UPLOAD_PHOTO");
             requestedCode = intent.getExtras().getInt("REQUEST_CODE");
             type = intent.getExtras().getString("TYPE");
 
 
             difficulty = intent.getExtras().getString("DIFFICULTY");
-            if (difficulty.equals("Easy")) {
+            if (Objects.requireNonNull(difficulty).equals("Easy")) {
                 numberOfColumns = 3;
                 defaultTime = 30000;
             }
@@ -175,9 +171,9 @@ public class GameActivity extends AppCompatActivity {
         if (timeLeftOnTimer == -1)
             timeLeftOnTimer = defaultTime;
 
-        mode = intent.getExtras().getString("MODE");
+        mode = Objects.requireNonNull(intent.getExtras()).getString("MODE");
 
-        if (mode.equals("Zen Mode")) {
+        if (Objects.requireNonNull(mode).equals("Zen Mode")) {
             findViewById(R.id.timer).setVisibility(View.INVISIBLE);
             findViewById(R.id.restart).setLayoutParams(new RelativeLayout.LayoutParams(RelativeLayout.LayoutParams.MATCH_PARENT, RelativeLayout.LayoutParams.MATCH_PARENT));
         }
