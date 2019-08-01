@@ -16,5 +16,6 @@
     <string name="difficulty">Difficulty</string>
     <string name="expired_time">Time expired!</string>
     <string name="time_left">Time Left: %1$s</string>
+    <string name="asset_statements" translatable="false">[{ \"include\": \"https://www.puzzleyourphoto.com/.well-known/assetlinks.json\" }]</string>
 
 </resources>
